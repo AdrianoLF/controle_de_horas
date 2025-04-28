@@ -6,9 +6,9 @@ class Api::V1::MembersController < ApplicationController
   def index
     render json: {
       members: members,
-      total_pages: members.total_pages,
-      current_page: members.current_page,
-      count_total: members.total_count
+      total_pages: members.try(:total_pages) || 1,
+      current_page: members.try(:current_page) || 1,
+      count_total: members.try(:total_count) || members.count
     }
   end
 
@@ -39,9 +39,12 @@ class Api::V1::MembersController < ApplicationController
   end
 
   def members
-    @members ||= Member.where("name ILIKE ?", "%#{params[:name]}%")
-                      .page(params[:page].presence || 1)
-                      .per(MAX_RESULTS)
+    @members ||= begin
+      query = Member.where("name ILIKE ?", "%#{params[:name]}%")
+      return query if params[:all_members].present?
+      
+      query.page(params[:page].presence || 1).per(MAX_RESULTS)
+    end
   end
 
   def member

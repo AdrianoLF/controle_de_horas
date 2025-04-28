@@ -16,6 +16,15 @@
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-md-8">
+            <div class="mb-2">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Pesquisar membro por nome..."
+                v-model="searchQuery"
+                @input="filterMembers"
+              />
+            </div>
             <select v-model="selectedMemberId" class="form-select">
               <option value="">Selecione um membro...</option>
               <option
@@ -92,14 +101,15 @@ export default {
       team: {},
       teamMembers: [],
       allMembers: [],
+      filteredMembers: [],
       selectedMemberId: "",
+      searchQuery: "",
       isLoading: true,
     };
   },
   computed: {
     availableMembers() {
-      // Filtrar membros que não estão no time
-      return this.allMembers.filter(
+      return this.filteredMembers.filter(
         (member) => !this.teamMembers.some((tm) => tm.id === member.id)
       );
     },
@@ -128,8 +138,15 @@ export default {
       this.teamMembers = response.members || [];
     },
     async fetchAllMembers() {
-      const response = await getMembers({});
+      const response = await getMembers({ all_members: true });
       this.allMembers = response.members || [];
+      this.filteredMembers = this.allMembers;
+    },
+    filterMembers() {
+      const query = this.searchQuery.toLowerCase();
+      this.filteredMembers = this.allMembers.filter((member) =>
+        member.name.toLowerCase().includes(query)
+      );
     },
     async addMember() {
       if (!this.selectedMemberId) return;
