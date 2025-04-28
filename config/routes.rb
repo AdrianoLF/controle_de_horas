@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   root 'pages#home'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
-      resource :members, only: [:show]
+      resources :members, only: %i[index update create destroy show]
       resources :proponents, only: %i[index update create destroy show] do
         collection do
           get :report
