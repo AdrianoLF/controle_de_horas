@@ -1,6 +1,6 @@
 
 class Event < ApplicationRecord
-  belongs_to :planilha
+  belongs_to :team
   has_many :event_assignments, dependent: :destroy
   has_many :members, through: :event_assignments
 

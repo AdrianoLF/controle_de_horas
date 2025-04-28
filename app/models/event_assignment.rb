@@ -2,12 +2,12 @@ class EventAssignment < ApplicationRecord
   belongs_to :event
   belongs_to :member
 
-  validate :member_is_in_planilha
+  validate :member_is_in_team
 
   private
 
-  def member_is_in_planilha
-    errors.add(:member, "não faz parte desta planilha") unless
-      member.planilhas.exists?(event.planilha_id)
+  def member_is_in_team
+    errors.add(:member, "não faz parte desta team") unless
+      member.teams.exists?(event.team_id)
   end
 end

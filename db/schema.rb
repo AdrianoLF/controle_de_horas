@@ -27,10 +27,10 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
     t.string "title"
     t.text "description"
     t.integer "duration_seconds"
-    t.bigint "planilha_id", null: false
+    t.bigint "team_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["planilha_id"], name: "index_events_on_planilha_id"
+    t.index ["team_id"], name: "index_events_on_team_id"
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -49,16 +49,16 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
   end
 
   create_table "memberships", force: :cascade do |t|
-    t.bigint "planilha_id", null: false
+    t.bigint "team_id", null: false
     t.bigint "member_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["member_id", "planilha_id"], name: "index_memberships_on_member_id_and_planilha_id", unique: true
+    t.index ["member_id", "team_id"], name: "index_memberships_on_member_id_and_team_id", unique: true
     t.index ["member_id"], name: "index_memberships_on_member_id"
-    t.index ["planilha_id"], name: "index_memberships_on_planilha_id"
+    t.index ["team_id"], name: "index_memberships_on_team_id"
   end
 
-  create_table "planilhas", force: :cascade do |t|
+  create_table "teams", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.datetime "created_at", null: false
@@ -96,8 +96,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
 
   add_foreign_key "event_assignments", "events"
   add_foreign_key "event_assignments", "members"
-  add_foreign_key "events", "planilhas"
+  add_foreign_key "events", "teams"
   add_foreign_key "memberships", "members"
-  add_foreign_key "memberships", "planilhas"
+  add_foreign_key "memberships", "teams"
   add_foreign_key "proponents", "users"
 end
