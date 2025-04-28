@@ -10,9 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_01_044836) do
+ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "event_assignments", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "member_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_assignments_on_event_id"
+    t.index ["member_id"], name: "index_event_assignments_on_member_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.integer "duration_seconds"
+    t.bigint "planilha_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["planilha_id"], name: "index_events_on_planilha_id"
+  end
 
   create_table "jwt_denylist", force: :cascade do |t|
     t.string "jti", null: false
@@ -20,6 +39,30 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_01_044836) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti"
+  end
+
+  create_table "members", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.bigint "planilha_id", null: false
+    t.bigint "member_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_id", "planilha_id"], name: "index_memberships_on_member_id_and_planilha_id", unique: true
+    t.index ["member_id"], name: "index_memberships_on_member_id"
+    t.index ["planilha_id"], name: "index_memberships_on_planilha_id"
+  end
+
+  create_table "planilhas", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "proponents", force: :cascade do |t|
@@ -51,5 +94,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_01_044836) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "event_assignments", "events"
+  add_foreign_key "event_assignments", "members"
+  add_foreign_key "events", "planilhas"
+  add_foreign_key "memberships", "members"
+  add_foreign_key "memberships", "planilhas"
   add_foreign_key "proponents", "users"
 end

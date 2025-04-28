@@ -9,12 +9,12 @@ default: &default
 
 development:
   <<: *default
-  database: <%= ENV.fetch('POSTGRES_DATABASE', 'desconto_inss') %>
+  database: <%= ENV.fetch('POSTGRES_DATABASE', 'postgres') %>
 
 test:
   <<: *default
-  database: desconto_inss_test
+  database: <%= ENV.fetch('POSTGRES_DATABASE', 'postgres_test') %>
 
 production:
   <<: *default
-  database: <%= ENV.fetch('POSTGRES_DATABASE', 'desconto_inss_production') %>
+  database: <%= ENV.fetch('POSTGRES_DATABASE', 'postgres_production') %>
