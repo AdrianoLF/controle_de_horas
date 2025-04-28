@@ -1,7 +1,7 @@
 class Api::V1::MembersController < ApplicationController
   before_action :member, only: %i[destroy update show]
 
-  MAX_RESULTS = 5
+  MAX_RESULTS = 10
 
   def index
     render json: {
