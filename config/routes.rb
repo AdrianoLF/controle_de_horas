@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       resources :members, only: %i[index update create destroy show]
+      
+      resources :teams, only: %i[index update create destroy show] do
+        resources :memberships, only: %i[create destroy]
+      end
+      
       resources :proponents, only: %i[index update create destroy show] do
         collection do
           get :report

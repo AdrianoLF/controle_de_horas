@@ -5,6 +5,9 @@ import Login from "../components/session/Login.vue";
 import ProponentEditForm from "../components/proponents/EditForm.vue";
 import MembersList from "../components/members/List.vue";
 import MemberForm from "../components/members/Form.vue";
+import TeamsList from "../components/teams/List.vue";
+import TeamForm from "../components/teams/Form.vue";
+import TeamMembers from "../components/teams/Members.vue";
 import store from "@/store";
 
 const routes = [
@@ -37,6 +40,30 @@ const routes = [
     path: "/members/edit/:id",
     name: "MemberEdit",
     component: MemberForm,
+    props: true,
+  },
+
+  // TIMES
+  {
+    path: "/teams",
+    name: "TeamsList",
+    component: TeamsList,
+  },
+  {
+    path: "/teams/new",
+    name: "TeamCreate",
+    component: TeamForm,
+  },
+  {
+    path: "/teams/edit/:id",
+    name: "TeamEdit",
+    component: TeamForm,
+    props: true,
+  },
+  {
+    path: "/teams/:id/members",
+    name: "TeamMembers",
+    component: TeamMembers,
     props: true,
   },
 ];
