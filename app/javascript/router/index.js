@@ -1,8 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../components/reports/Reports.vue";
-import ProponentCreateForm from "../components/proponents/CreateForm.vue";
 import Login from "../components/session/Login.vue";
-import ProponentEditForm from "../components/proponents/EditForm.vue";
 import MembersList from "../components/members/List.vue";
 import MemberForm from "../components/members/Form.vue";
 import TeamsList from "../components/teams/List.vue";
@@ -13,17 +11,6 @@ import store from "@/store";
 const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/login", name: "Login", component: Login },
-  {
-    path: "/proponents/new",
-    name: "ProponentCreate",
-    component: ProponentCreateForm,
-  },
-  {
-    path: "/proponents/edit/:id",
-    name: "ProponentEdit",
-    component: ProponentEditForm,
-    props: true,
-  },
 
   // MEMBROS
   {

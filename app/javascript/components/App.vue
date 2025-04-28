@@ -27,14 +27,6 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <router-link
-                to="/proponents/new"
-                class="nav-link"
-                active-class="active"
-                >Cadastrar Proponentes</router-link
-              >
-            </li>
-            <li class="nav-item">
               <router-link to="/members" class="nav-link" active-class="active"
                 >Membros</router-link
               >

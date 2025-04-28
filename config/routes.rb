@@ -14,12 +14,6 @@ Rails.application.routes.draw do
         resources :memberships, only: %i[create destroy]
       end
       
-      resources :proponents, only: %i[index update create destroy show] do
-        collection do
-          get :report
-        end
-      end
-
       resources :inss_calculations, only: [] do
         collection do
           post :discount
