@@ -1,13 +1,9 @@
-require 'sidekiq/web'
 Rails.application.routes.draw do
   devise_for :users,
              controllers: {
                sessions: 'users/sessions',
                registrations: 'users/registrations'
              }
-  authenticate :user do
-    mount Sidekiq::Web => '/sidekiq'
-  end
 
   root 'pages#home'
   namespace :api, defaults: { format: 'json' } do

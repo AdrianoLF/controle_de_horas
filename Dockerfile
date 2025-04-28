@@ -19,6 +19,5 @@ COPY . .
 EXPOSE 3000
 
 ENV RAILS_ENV=development
-ENV REDIS_URL=redis://redis:6379/0
 
 ENTRYPOINT ["./docker/entrypoint.sh"]

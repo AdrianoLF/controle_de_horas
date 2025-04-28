@@ -34,9 +34,6 @@
                 >Cadastrar Proponentes</router-link
               >
             </li>
-            <li class="nav-item">
-              <a href="/sidekiq" class="nav-link" target="blank"> Sidekiq </a>
-            </li>
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item" v-if="!isLoggedIn">

@@ -27,9 +27,6 @@ gem 'stimulus-rails'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem 'jbuilder'
 
-# Use Redis adapter to run Action Cable in production
-gem 'redis', '~> 4.0'
-
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
@@ -42,8 +39,6 @@ gem 'devise-jwt', '~> 0.12.1'
 gem 'rack-cors', '~> 2.0'
 
 gem 'cpf_cnpj'
-
-gem 'sidekiq', '~> 7.3'
 
 gem 'kaminari'
 
