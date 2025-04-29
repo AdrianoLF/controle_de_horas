@@ -1,87 +1,70 @@
+# Controle de Horas - CODELAB TEEN UNIFESP
 
-# Descontos do INSS - Teste Técnico
+Sistema inteligente para controle de horas de diferentes times.
 
-Este é um teste técnico para desenvolver uma aplicação de descontos do INSS. Utilizei Ruby on Rails como backend. O projeto visa demonstrar o conhecimento técnico com Rails, e ferramentas complementares. A aplicação utiliza Bootstrap para estilização e Chart.js para renderizar gráficos interativos.
+## 🚀 Tecnologias
 
----
+- Ruby 3.2.2
+- Rails 7.0.8
+- Vue.js 3 com Vite
+- Bootstrap
+- PostgreSQL
+- Docker & Docker Compose
 
-## Tecnologias Utilizadas
+## 📋 Pré-requisitos
 
-- **Ruby**: 3.2.2
-- **Rails**: 7.0.8
-- **Frontend**: Vite com Vue.js
-- **Estilização**: Bootstrap
-- **Gráficos**: Chart.js
-- **Banco de Dados**: PostgreSQL
-- **Mensageria**: Redis + Sidekiq
-- **Containerização**: Docker & Docker Compose
+- Docker e Docker Compose
+- Ruby 3.2.2 (recomendado usar RVM)
+- Node.js 20.x
 
----
+## 🔧 Instalação
 
-## Passos para Configurar e Rodar a Aplicação
+1. Clone o repositório
 
-### Pré-requisitos
-
-1. Certifique-se de que o Docker e o Docker Compose estão instalados:
-   - [Instalar Docker](https://www.docker.com/get-started)
-   - [Instalar Docker Compose](https://docs.docker.com/compose/install/)
-
-2. Clone o repositório e entre no diretório do projeto:
-   ```bash
-   git clone <URL-DO-REPOSITORIO>
-   cd <NOME-DO-DIRETORIO>
-   ```
-
-3. Configure o arquivo `.env`:
-   - Na raiz do projeto, crie um arquivo `.env` com as seguintes variáveis de ambiente (exemplo abaixo).
-
-4. Suba os containers utilizando o Docker Compose:
-   ```bash
-   docker-compose up --build
-   ```
-
-5. Acesse o serviço:
-   - A aplicação estará disponível em [http://localhost:3000](http://localhost:3000).
-
-6. Acesso ao Sidekiq:
-   - Navegue até [http://localhost:3000/sidekiq](http://localhost:3000/sidekiq) para monitorar as filas de tarefas.
-
-7. Acesso ao Vite (Frontend):
-   - Acesse [http://localhost:5173](http://localhost:5173) para visualizar o frontend da aplicação.
-
----
-
-## Exemplo do Arquivo `.env`
-
-```env
-POSTGRES_USERNAME=admin
-POSTGRES_PASSWORD=admin123
-POSTGRES_DATABASE=desconto_inss
-POSTGRES_PORT=5432
-POSTGRES_HOST=desconto_inss_db
-
-REDIS_PASSWORD=redispass123
-REDIS_URL=redis://:redispass123@redis:6379/0
-
-RAILS_ENV=development
-NODE_ENV=development
+```bash
+git clone <URL-DO-REPOSITORIO>
+cd <NOME-DO-DIRETORIO>
 ```
 
----
+2. Configure o ambiente
 
-## Notas Adicionais
+- Crie um arquivo `.env` (pode copiar o `.env.example`) na raiz do projeto com as seguintes variáveis:
 
-- **Volumes Persistentes**:
-  - O Docker Compose está configurado para persistir os dados do PostgreSQL e Redis utilizando volumes nomeados (`postgres_data` e `redis_data`), garantindo que os dados não sejam perdidos ao reiniciar os containers.
+```env
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DATABASE=controle_de_horas
+POSTGRES_USERNAME=myuser
+POSTGRES_PASSWORD=my_password
 
-- **Seed Inicial**:
-  - A aplicação já possui um usuário de seed:
-    ```
-    Email: john@acme.inc
-    Senha: Password1!
-    ```
+DEVISE_JWT_SECRET_KEY=seu_token_secreto
 
-- **Variáveis de Ambiente**:
-  - As variáveis de ambiente são gerenciadas através do arquivo `.env`, que deve conter todas as configurações sensíveis e específicas do ambiente.
+REDIS_PASSWORD=your_redis_password
+REDIS_URL=redis://:your_redis_password@redis:6379/0
+```
 
-Se tiver qualquer dúvida ou precisar de ajuda adicional, sinta-se à vontade para abrir uma issue ou entrar em contato!
+3. Inicie a aplicação
+
+```bash
+docker-compose up --build
+```
+
+4. Acesse a aplicação
+
+- Disponível em [http://localhost:3000](http://localhost:3000)
+
+## 👤 Usuário Padrão
+
+Para acessar o sistema, utilize as seguintes credenciais:
+
+- Email: john@acme.inc
+- Senha: Password1!
+
+## 📝 Notas Importantes
+
+- Os dados do PostgreSQL são persistidos através de volumes do Docker
+- O sistema utiliza autenticação JWT para segurança
+
+## 🤝 Suporte
+
+Em caso de dúvidas ou problemas, abra uma issue no repositório ou entre em contato com a equipe de desenvolvimento.
