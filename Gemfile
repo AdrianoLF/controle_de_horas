@@ -56,6 +56,8 @@ group :development do
   gem 'rubocop-rspec', require: false
   gem 'ruby-lsp'
   gem 'web-console'
+  gem 'solargraph'
+  gem 'rufo'
 end
 
 group :test do
