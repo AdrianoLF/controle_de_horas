@@ -13,7 +13,7 @@ class Api::V1::MembersController < ApplicationController
 
   def create
     @member = Member.new(permitted_params)
-    @member.save ? render_success : render_error
+    @member.save || render_error
   end
 
   def destroy
@@ -33,10 +33,6 @@ class Api::V1::MembersController < ApplicationController
 
   def member
     @member ||= Member.find(params[:id])
-  end
-
-  def render_success
-    render json: { member: @member }
   end
 
   def render_error

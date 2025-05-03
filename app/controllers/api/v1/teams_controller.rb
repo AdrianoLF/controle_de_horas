@@ -13,7 +13,7 @@ class Api::V1::TeamsController < ApplicationController
 
   def create
     @team = Team.new(permitted_params)
-    @team.save ? render_success : render_error
+    @team.save || render_error
   end
 
   def destroy
@@ -22,7 +22,7 @@ class Api::V1::TeamsController < ApplicationController
 
   def update
     @team.update(permitted_params)
-    @team.save ? render_success : render_error
+    @team.save || render_error
   end
 
   private
@@ -33,10 +33,6 @@ class Api::V1::TeamsController < ApplicationController
 
   def team
     @team ||= Team.find(params[:id])
-  end
-
-  def render_success
-    render json: { team: @team }
   end
 
   def render_error
