@@ -20,7 +20,7 @@ class Finders::TeamsFinder
   end
 
   def filter_by_name(scope)
-    return scope unless @params[:name].present?
+    return scope if @params[:name].blank?
 
     scope.where('teams.name ILIKE ?', "%#{@params[:name]}%")
   end

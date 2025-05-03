@@ -134,12 +134,12 @@ export default {
     },
     async fetchTeam() {
       const response = await getTeam(this.teamId);
-      this.team = response.team;
+      this.team = response.record;
       this.teamMembers = response.members || [];
     },
     async fetchAllMembers() {
       const response = await getMembers({ all_members: true });
-      this.allMembers = response.members || [];
+      this.allMembers = response.records || [];
       this.filteredMembers = this.allMembers;
     },
     filterMembers() {

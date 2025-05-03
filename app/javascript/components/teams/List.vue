@@ -4,14 +4,13 @@
     search-placeholder="Pesquisar por Nome"
     add-button-text="Adicionar Time"
     new-item-route="/teams/new"
-    :headers="['#', 'Nome', 'Membros', 'Ações']"
+    :headers="['Nome', 'Membros', 'Ações']"
     :items="teams"
     :total-pages="totalPages"
     :is-loading="isLoading"
     @fetch="handleFetch"
   >
     <template #row="{ item: team }">
-      <th scope="row">{{ team.id }}</th>
       <td>{{ team.name }}</td>
       <td>
         <router-link
