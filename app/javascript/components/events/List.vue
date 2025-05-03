@@ -20,7 +20,7 @@
           :to="{ name: 'EventMembers', params: { id: event.id } }"
           class="btn btn-info btn-sm"
         >
-          Membros
+          {{ event.members?.length || 0 }}
         </router-link>
       </td>
       <td class="d-flex gap-2">
@@ -67,54 +67,66 @@
 </template>
 
 <script>
-import { ref, reactive } from "vue";
 import { getEvents, deleteEvent as deleteEventApi } from "@/api/events";
 import { getTeams } from "@/api/teams";
 import BaseList from "../common/BaseList.vue";
 
 export default {
+  name: "EventsList",
+
   components: {
     BaseList,
   },
 
-  setup() {
-    const events = ref([]);
-    const teams = ref([]);
-    const isLoading = ref(true);
-    const totalPages = ref(1);
-    const deleteModal = ref(false);
-    const eventToDelete = ref(null);
-
-    const handleFetch = async (params) => {
-      try {
-        isLoading.value = true;
-        const response = await getEvents(params);
-        events.value = response.events;
-        totalPages.value = response.total_pages;
-        isLoading.value = false;
-
-        loadTeams();
-      } catch (error) {
-        console.error("Erro ao carregar eventos:", error);
-        isLoading.value = false;
-      }
+  data() {
+    return {
+      events: [],
+      teams: [],
+      isLoading: true,
+      totalPages: 1,
+      deleteModal: false,
+      eventToDelete: null,
     };
+  },
 
-    const loadTeams = async () => {
+  mounted() {
+    this.handleFetch({ page: 1 });
+    this.loadTeams();
+  },
+
+  methods: {
+    async handleFetch(params) {
       try {
-        const response = await getTeams({ all_teams: true });
-        teams.value = response.teams;
+        this.isLoading = true;
+        const response = await getEvents({ page: 1 });
+        this.events = response.records;
+        this.totalPages = response.total_pages;
       } catch (error) {
-        console.error("Erro ao carregar times:", error);
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao carregar eventos";
+        this.$eventBus.emit("displayAlert", message);
+      } finally {
+        this.isLoading = false;
       }
-    };
+    },
 
-    const getTeamName = (teamId) => {
-      const team = teams.value.find((t) => t.id === teamId);
+    async loadTeams() {
+      try {
+        const response = await getTeams({ all_records: true });
+        this.teams = response.records;
+      } catch (error) {
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao carregar times";
+        this.$eventBus.emit("displayAlert", message);
+      }
+    },
+
+    getTeamName(teamId) {
+      const team = this.teams.find((t) => t.id === teamId);
       return team ? team.name : "Time não encontrado";
-    };
+    },
 
-    const formatDuration = (seconds) => {
+    formatDuration(seconds) {
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
 
@@ -122,37 +134,33 @@ export default {
         return `${hours}h${minutes > 0 ? ` ${minutes}min` : ""}`;
       }
       return `${minutes}min`;
-    };
+    },
 
-    const confirmDelete = (event) => {
-      eventToDelete.value = event;
-      deleteModal.value = true;
-    };
+    confirmDelete(event) {
+      this.eventToDelete = event;
+      this.deleteModal = true;
+    },
 
-    const deleteEvent = async () => {
+    async deleteEvent() {
       try {
-        await deleteEventApi(eventToDelete.value.id);
-        await handleFetch({ page: 1 });
-        deleteModal.value = false;
-        eventToDelete.value = null;
+        this.isLoading = true;
+        await deleteEventApi(this.eventToDelete.id);
+        await this.handleFetch();
+        this.deleteModal = false;
+        this.eventToDelete = null;
+        this.$eventBus.emit(
+          "displayAlert",
+          "Evento excluído com sucesso",
+          "success"
+        );
       } catch (error) {
-        console.error("Erro ao excluir evento:", error);
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao excluir evento";
+        this.$eventBus.emit("displayAlert", message);
+      } finally {
+        this.isLoading = false;
       }
-    };
-
-    return {
-      events,
-      teams,
-      isLoading,
-      totalPages,
-      deleteModal,
-      eventToDelete,
-      handleFetch,
-      getTeamName,
-      formatDuration,
-      confirmDelete,
-      deleteEvent,
-    };
+    },
   },
 };
 </script>

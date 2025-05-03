@@ -1,224 +1,227 @@
 <template>
   <div class="container mt-5">
-    <h1 class="mb-4">
-      Membros do Evento: <span class="text-primary">{{ event.name }}</span>
-    </h1>
-
-    <div class="mb-4">
-      <router-link to="/events" class="btn btn-secondary">
-        Voltar para Eventos
-      </router-link>
+    <div v-if="loading" class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
     </div>
+    <template v-else>
+      <h1 class="mb-4">
+        Membros do Evento: <span class="text-primary">{{ event.title }}</span>
+      </h1>
 
-    <!-- Adicionar Membros -->
-    <div class="card mb-4">
-      <div class="card-header bg-primary text-white">Adicionar Membros</div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-md-8">
-            <div class="mb-2">
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Pesquisar membro por nome..."
-                v-model="searchTerm"
-                @input="filterAvailableMembers"
-              />
+      <div class="mb-4">
+        <router-link to="/events" class="btn btn-secondary">
+          Voltar para Eventos
+        </router-link>
+      </div>
+
+      <!-- Adicionar Membros -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">Adicionar Membros</div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <div class="mb-2">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Pesquisar membro por nome..."
+                  v-model="searchTerm"
+                  @input="filterAvailableMembers"
+                />
+              </div>
+              <select v-model="selectedMemberId" class="form-select">
+                <option value="">Selecione um membro...</option>
+                <option
+                  v-for="member in filteredAvailableMembers"
+                  :key="member.id"
+                  :value="member.id"
+                >
+                  {{ member.name }}
+                </option>
+              </select>
             </div>
-            <select v-model="selectedMemberId" class="form-select">
-              <option value="">Selecione um membro...</option>
-              <option
-                v-for="member in filteredAvailableMembers"
-                :key="member.id"
-                :value="member.id"
+            <div class="col-md-4">
+              <button
+                @click="addSelectedMember"
+                class="btn btn-success w-100"
+                :disabled="!selectedMemberId"
               >
-                {{ member.name }}
-              </option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <button
-              @click="addSelectedMember"
-              class="btn btn-success w-100"
-              :disabled="!selectedMemberId"
-            >
-              Adicionar Membro
-            </button>
+                Adicionar Membro
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Lista de Membros do Evento -->
-    <div class="card">
-      <div class="card-header bg-primary text-white">Membros Atuais</div>
-      <div class="card-body">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Nome</th>
-              <th scope="col">Email</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="loading">
-              <td colspan="4" class="text-center">Carregando...</td>
-            </tr>
-            <tr v-else-if="eventMembers.length === 0">
-              <td colspan="4" class="text-center">
-                Este evento ainda não possui membros.
-              </td>
-            </tr>
-            <tr v-else v-for="member in eventMembers" :key="member.id">
-              <th scope="row">{{ member.id }}</th>
-              <td>{{ member.name }}</td>
-              <td>{{ member.email }}</td>
-              <td>
-                <button
-                  @click="removeMember(member.id)"
-                  class="btn btn-danger btn-sm"
-                >
-                  Remover
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Lista de Membros do Evento -->
+      <div class="card">
+        <div class="card-header bg-primary text-white">Membros Atuais</div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Email</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="loadingTable">
+                <td colspan="4" class="text-center">Carregando...</td>
+              </tr>
+              <tr v-else-if="eventMembers.length === 0">
+                <td colspan="4" class="text-center">
+                  Este evento ainda não possui membros.
+                </td>
+              </tr>
+              <tr v-else v-for="member in eventMembers" :key="member.id">
+                <th scope="row">{{ member.id }}</th>
+                <td>{{ member.name }}</td>
+                <td>{{ member.email }}</td>
+                <td>
+                  <button
+                    @click="removeMember(member)"
+                    class="btn btn-danger btn-sm"
+                  >
+                    Remover
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
 import { getEvent } from "@/api/events";
 import { getMembers } from "@/api/members";
 import { addMemberToEvent, removeMemberFromEvent } from "@/api/events";
 
 export default {
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
+  name: "EventMembers",
+
+  data() {
+    return {
+      event: {},
+      eventMembers: [],
+      availableMembers: [],
+      filteredAvailableMembers: [],
+      searchTerm: "",
+      loading: true,
+      loadingTable: false,
+      selectedMemberId: "",
+    };
   },
 
-  setup(props) {
-    const event = ref({});
-    const eventMembers = ref([]);
-    const availableMembers = ref([]);
-    const filteredAvailableMembers = ref([]);
-    const searchTerm = ref("");
-    const loading = ref(true);
-    const selectedMemberId = ref("");
+  async mounted() {
+    await this.refreshData();
+  },
 
-    const fetchEvent = async () => {
+  methods: {
+    async fetchEvent() {
       try {
-        const response = await getEvent(props.id);
-        event.value = response.data.event;
-        eventMembers.value = response.members || [];
+        const { record } = await getEvent(this.$route.params.id);
+        this.event = record;
+        this.eventMembers = record.members || [];
       } catch (error) {
-        console.error("Erro ao carregar evento:", error);
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao carregar evento";
+        this.$eventBus.emit("displayAlert", message);
       }
-    };
+    },
 
-    const fetchMembers = async () => {
+    async fetchMembers() {
       try {
-        const response = await getMembers({ all_members: true });
-        const allMembers = response.members || [];
-
-        updateAvailableMembers(allMembers);
+        const { records } = await getMembers({ all_records: true });
+        const allMembers = records || [];
+        this.updateAvailableMembers(allMembers);
       } catch (error) {
-        console.error("Erro ao carregar membros:", error);
-      } finally {
-        loading.value = false;
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao carregar membros";
+        this.$eventBus.emit("displayAlert", message);
       }
-    };
+    },
 
-    const updateAvailableMembers = (allMembers) => {
-      const eventMemberIds = eventMembers.value.map((m) => m.id);
-      availableMembers.value = allMembers.filter(
+    updateAvailableMembers(allMembers) {
+      const eventMemberIds = this.eventMembers.map((m) => m.id);
+      this.availableMembers = allMembers.filter(
         (member) => !eventMemberIds.includes(member.id)
       );
-      filterAvailableMembers();
-    };
+      this.filterAvailableMembers();
+    },
 
-    const filterAvailableMembers = () => {
-      if (!searchTerm.value) {
-        filteredAvailableMembers.value = availableMembers.value;
+    filterAvailableMembers() {
+      if (!this.searchTerm) {
+        this.filteredAvailableMembers = this.availableMembers;
         return;
       }
 
-      const term = searchTerm.value.toLowerCase();
-      filteredAvailableMembers.value = availableMembers.value.filter(
+      const term = this.searchTerm.toLowerCase();
+      this.filteredAvailableMembers = this.availableMembers.filter(
         (member) =>
           member.name.toLowerCase().includes(term) ||
-          member.email.toLowerCase().includes(term)
+          (member.email && member.email.toLowerCase().includes(term))
       );
-    };
+    },
 
-    const addSelectedMember = async () => {
-      if (!selectedMemberId.value) return;
+    async addSelectedMember() {
+      if (!this.selectedMemberId) return;
 
       try {
-        await addMemberToEvent(props.id, selectedMemberId.value);
-        selectedMemberId.value = "";
-        await refreshData();
+        this.loadingTable = true;
+        await addMemberToEvent(this.$route.params.id, this.selectedMemberId);
+        this.selectedMemberId = "";
+        await this.refreshData();
+        this.$eventBus.emit(
+          "displayAlert",
+          "Membro adicionado com sucesso",
+          "success"
+        );
       } catch (error) {
-        console.error("Erro ao adicionar membro:", error);
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao adicionar membro";
+        this.$eventBus.emit("displayAlert", message);
+      } finally {
+        this.loadingTable = false;
       }
-    };
+    },
 
-    const addMember = async (memberId) => {
-      try {
-        await addMemberToEvent(props.id, memberId);
-        await refreshData();
-      } catch (error) {
-        console.error("Erro ao adicionar membro:", error);
-      }
-    };
-
-    const removeMember = async (memberId) => {
+    async removeMember(member) {
       if (!confirm("Tem certeza que deseja remover este membro do evento?"))
         return;
 
       try {
-        const member = eventMembers.value.find((m) => m.id === memberId);
+        this.loadingTable = true;
         if (member && member.event_assignment_id) {
           await removeMemberFromEvent(member.event_assignment_id);
-          await refreshData();
+          await this.refreshData();
+          this.$eventBus.emit(
+            "displayAlert",
+            "Membro removido com sucesso",
+            "success"
+          );
         }
       } catch (error) {
-        console.error("Erro ao remover membro:", error);
+        const message =
+          error?.response?.data?.errors?.[0] || "Erro ao remover membro";
+        this.$eventBus.emit("displayAlert", message);
+      } finally {
+        this.loadingTable = false;
       }
-    };
+    },
 
-    const refreshData = async () => {
-      loading.value = true;
-      await fetchEvent();
-      await fetchMembers();
-    };
-
-    onMounted(async () => {
-      await fetchEvent();
-      await fetchMembers();
-    });
-
-    return {
-      event,
-      eventMembers,
-      availableMembers,
-      filteredAvailableMembers,
-      searchTerm,
-      loading,
-      selectedMemberId,
-      addMember,
-      addSelectedMember,
-      removeMember,
-      filterAvailableMembers,
-    };
+    async refreshData() {
+      this.loading = true;
+      await this.fetchEvent();
+      await this.fetchMembers();
+      this.loading = false;
+    },
   },
 };
 </script>
