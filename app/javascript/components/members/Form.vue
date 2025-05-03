@@ -1,6 +1,11 @@
 <template>
   <div class="container mt-5">
-    <template v-if="!isEditing || member">
+    <div v-if="loading" class="d-flex justify-content-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+    <template v-else-if="!isEditing || member">
       <h1 class="mb-4">{{ title }}</h1>
 
       <form @submit.prevent="submitForm">
@@ -71,6 +76,7 @@ export default {
       memberTeams: [],
       isEditing: false,
       memberId: null,
+      loading: false,
     };
   },
 
@@ -94,6 +100,7 @@ export default {
   methods: {
     async fetchMember() {
       try {
+        this.loading = true;
         const { record, teams } = await getMember(this.memberId);
         this.member = record;
         this.memberTeams = teams || [];
@@ -102,11 +109,14 @@ export default {
         const msg =
           e?.response?.data?.errors?.[0] || "Erro ao buscar dados do membro";
         this.$eventBus.emit("displayAlert", msg);
+      } finally {
+        this.loading = false;
       }
     },
 
     async submitForm() {
       try {
+        this.loading = true;
         this.isEditing
           ? await editMember(this.memberId, this.formData)
           : await createMember(this.formData);
@@ -115,6 +125,8 @@ export default {
       } catch (e) {
         const msg = e?.response?.data?.errors?.[0] || "Erro ao salvar membro";
         this.$eventBus.emit("displayAlert", msg);
+      } finally {
+        this.loading = false;
       }
     },
   },
