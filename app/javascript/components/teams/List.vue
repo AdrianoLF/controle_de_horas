@@ -56,7 +56,7 @@ export default {
     async handleFetch(params) {
       try {
         const response = await getTeams(params);
-        this.teams = response.teams;
+        this.teams = response.records;
         this.totalPages = response.total_pages || 1;
         this.isLoading = false;
       } catch (error) {
