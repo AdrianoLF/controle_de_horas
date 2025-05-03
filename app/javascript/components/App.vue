@@ -36,6 +36,11 @@
                 >Times</router-link
               >
             </li>
+            <li class="nav-item">
+              <router-link to="/events" class="nav-link" active-class="active"
+                >Eventos</router-link
+              >
+            </li>
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item" v-if="!isLoggedIn">

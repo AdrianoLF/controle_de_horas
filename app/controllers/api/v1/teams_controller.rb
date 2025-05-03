@@ -4,12 +4,21 @@ class Api::V1::TeamsController < ApplicationController
   MAX_RESULTS = 10
 
   def index
-    render json: {
-      teams: teams_with_counts,
-      total_pages: teams.total_pages,
-      current_page: teams.current_page,
-      count_total: teams.total_count
-    }
+    if params[:all_teams].present?
+      render json: {
+        teams: teams,
+        total_pages: 1,
+        current_page: 1,
+        count_total: teams.count
+      }
+    else
+      render json: {
+        teams: teams_with_counts,
+        total_pages: teams.total_pages,
+        current_page: teams.current_page,
+        count_total: teams.total_count
+      }
+    end
   end
 
   def show
@@ -40,9 +49,12 @@ class Api::V1::TeamsController < ApplicationController
   end
 
   def teams
-    @teams ||= Team.where("name ILIKE ?", "%#{params[:name]}%")
-                  .page(params[:page].presence || 1)
-                  .per(MAX_RESULTS)
+    @teams ||= begin
+      query = Team.where("name ILIKE ?", "%#{params[:name]}%")
+      return query if params[:all_teams].present?
+      
+      query.page(params[:page].presence || 1).per(MAX_RESULTS)
+    end
   end
 
   def teams_with_counts

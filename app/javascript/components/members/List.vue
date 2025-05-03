@@ -4,7 +4,7 @@
     search-placeholder="Pesquisar por Nome"
     add-button-text="Adicionar Membro"
     new-item-route="/members/new"
-    :headers="['#', 'Nome', '', '']"
+    :headers="['#', 'Nome', 'Ações']"
     :items="members"
     :total-pages="totalPages"
     :is-loading="isLoading"
@@ -13,15 +13,13 @@
     <template #row="{ item: member }">
       <th scope="row">{{ member.id }}</th>
       <td>{{ member.name }}</td>
-      <td>
+      <td class="d-flex gap-2">
         <router-link
           :to="`/members/edit/${member.id}`"
           class="btn btn-primary btn-sm"
         >
           Editar
         </router-link>
-      </td>
-      <td>
         <button class="btn btn-danger btn-sm" @click="deleteRecord(member.id)">
           Deletar
         </button>

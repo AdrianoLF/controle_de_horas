@@ -4,7 +4,7 @@
     search-placeholder="Pesquisar por Nome"
     add-button-text="Adicionar Time"
     new-item-route="/teams/new"
-    :headers="['#', 'Nome', 'Membros', '', '', '']"
+    :headers="['#', 'Nome', 'Membros', 'Ações']"
     :items="teams"
     :total-pages="totalPages"
     :is-loading="isLoading"
@@ -13,29 +13,26 @@
     <template #row="{ item: team }">
       <th scope="row">{{ team.id }}</th>
       <td>{{ team.name }}</td>
-      <td>{{ team.member_count || 0 }}</td>
       <td>
         <router-link
           :to="`/teams/${team.id}/members`"
           class="btn btn-info btn-sm"
         >
-          Membros
+          {{ team.member_count || 0 }}
         </router-link>
       </td>
-      <td>
+      <td class="d-flex gap-2">
         <router-link
           :to="`/teams/edit/${team.id}`"
           class="btn btn-primary btn-sm"
         >
           Editar
         </router-link>
-      </td>
-      <td>
         <button class="btn btn-danger btn-sm" @click="deleteRecord(team.id)">
           Deletar
         </button>
-      </td>
-    </template>
+      </td></template
+    >
   </BaseList>
 </template>
 

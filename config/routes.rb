@@ -19,6 +19,9 @@ Rails.application.routes.draw do
           post :discount
         end
       end
+
+      resources :events, only: %i[index update create destroy show]
+      resources :event_assignments, only: [:create, :destroy]
     end
   end
 
