@@ -4,7 +4,7 @@ class Api::V1::TeamsController < ApplicationController
   MAX_RESULTS = 10
 
   def index
-    @teams = Finders::TeamsFinder.new(permitted_params).perform
+    @teams = TeamsFinder.new(permitted_params).perform
   end
 
   def show

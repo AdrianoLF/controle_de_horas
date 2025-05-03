@@ -1,4 +1,4 @@
-class Finders::TeamsFinder
+class TeamsFinder
   MAX_RESULTS = 10
 
   def initialize(params)

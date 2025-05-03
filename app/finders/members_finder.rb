@@ -1,4 +1,4 @@
-class Finders::MembersFinder
+class MembersFinder
   MAX_RESULTS = 10
 
   def initialize(params)

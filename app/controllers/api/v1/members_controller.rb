@@ -4,7 +4,7 @@ class Api::V1::MembersController < ApplicationController
   MAX_RESULTS = 10
 
   def index
-    @members = Finders::MembersFinder.new(permitted_params).perform.includes(:teams)
+    @members = MembersFinder.new(permitted_params).perform.includes(:teams)
   end
 
   def show
