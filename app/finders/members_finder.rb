@@ -9,7 +9,7 @@ class MembersFinder
     members = base_scope
     members = filter_by_name(members)
     members = order_by_name(members)
-    members = paginate(members) unless show_all_records?
+    members = paginate(members)
     members
   end
 
@@ -30,7 +30,8 @@ class MembersFinder
   end
 
   def paginate(scope)
-    scope.page(@params[:page].presence || 1).per(MAX_RESULTS)
+    max_results = show_all_records? ? 999_999 : MAX_RESULTS
+    scope.page(@params[:page].presence || 1).per(max_results)
   end
 
   def show_all_records?

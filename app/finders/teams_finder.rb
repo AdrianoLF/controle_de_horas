@@ -9,7 +9,7 @@ class TeamsFinder
     teams = base_scope
     teams = filter_by_name(teams)
     teams = with_member_count(teams)
-    teams = paginate(teams) unless show_all_records?
+    teams = paginate(teams)
     teams
   end
 
@@ -33,7 +33,8 @@ class TeamsFinder
   end
 
   def paginate(scope)
-    scope.page(@params[:page] || 1).per(MAX_RESULTS)
+    max_results = show_all_records? ? 999_999 : MAX_RESULTS
+    scope.page(@params[:page] || 1).per(max_results)
   end
 
   def show_all_records?
