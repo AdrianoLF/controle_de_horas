@@ -138,7 +138,7 @@ export default {
       this.teamMembers = response.members || [];
     },
     async fetchAllMembers() {
-      const response = await getMembers({ all_members: true });
+      const response = await getMembers({ all_records: true });
       this.allMembers = response.records || [];
       this.filteredMembers = this.allMembers;
     },
