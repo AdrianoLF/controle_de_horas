@@ -4,15 +4,32 @@
     search-placeholder="Pesquisar por Nome"
     add-button-text="Adicionar Membro"
     new-item-route="/members/new"
-    :headers="['#', 'Nome', 'Ações']"
+    :headers="['Nome', 'Times', 'Ações']"
     :items="members"
     :total-pages="totalPages"
     :is-loading="isLoading"
     @fetch="handleFetch"
   >
     <template #row="{ item: member }">
-      <th scope="row">{{ member.id }}</th>
       <td>{{ member.name }}</td>
+      <td>
+        <div v-if="member.teams && member.teams.length > 0">
+          <div
+            v-for="team in member.teams"
+            :key="team.id"
+            class="d-flex align-items-center mb-1"
+          >
+            <span>{{ team.name }}</span>
+            <router-link
+              :to="`/teams/${team.id}/members`"
+              class="btn btn-outline-primary btn-sm ms-2"
+            >
+              Ver Time
+            </router-link>
+          </div>
+        </div>
+        <span v-else>Nenhum time</span>
+      </td>
       <td class="d-flex gap-2">
         <router-link
           :to="`/members/edit/${member.id}`"
@@ -48,7 +65,7 @@ export default {
     async handleFetch(params) {
       try {
         const response = await getMembers(params);
-        this.members = response.members;
+        this.members = response.records;
         this.totalPages = response.total_pages || 1;
         this.isLoading = false;
       } catch (error) {

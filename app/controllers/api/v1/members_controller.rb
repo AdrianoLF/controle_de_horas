@@ -1,21 +1,14 @@
 class Api::V1::MembersController < ApplicationController
-  before_action :member, only: %i[destroy update show]
+  before_action :member, only: %i[destroy update]
 
   MAX_RESULTS = 10
 
   def index
-    render json: {
-      members: members,
-      total_pages: members.try(:total_pages) || 1,
-      current_page: members.try(:current_page) || 1,
-      count_total: members.try(:total_count) || members.count
-    }
+    @members = Finders::MembersFinder.new(permitted_params).perform.includes(:teams)
   end
 
   def show
-    render json: {
-      member: @member
-    }
+    member
   end
 
   def create
@@ -35,16 +28,7 @@ class Api::V1::MembersController < ApplicationController
   private
 
   def permitted_params
-    params.permit(:name)
-  end
-
-  def members
-    @members ||= begin
-      query = Member.where("name ILIKE ?", "%#{params[:name]}%")
-      return query if params[:all_members].present?
-      
-      query.page(params[:page].presence || 1).per(MAX_RESULTS)
-    end
+    params.permit(:name, :all_records, :page)
   end
 
   def member
