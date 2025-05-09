@@ -1,6 +1,6 @@
 json.records do
   json.array! @teams do |team|
-    json.partial! 'api/v1/models/team', formats: [:json], resource: team, cached: true
+    json.partial! 'api/v1/models/team', formats: [:json], resource: team
     json.member_count team.member_count.to_i
   end
 end

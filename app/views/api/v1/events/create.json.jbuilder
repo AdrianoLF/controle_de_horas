@@ -1,3 +1,3 @@
 json.record do
-  json.partial! 'api/v1/models/event', formats: [:json], resource: @event, cached: true
+  json.partial! 'api/v1/models/event', formats: [:json], resource: @event
 end

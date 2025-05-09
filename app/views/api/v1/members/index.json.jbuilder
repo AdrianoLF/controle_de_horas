@@ -1,6 +1,6 @@
 json.records do
   json.array! @members do |member|
-    json.partial! 'api/v1/models/member', formats: [:json], resource: member, cached: true
+    json.partial! 'api/v1/models/member', formats: [:json], resource: member
 
     json.teams do
       json.array! member.teams do |team|

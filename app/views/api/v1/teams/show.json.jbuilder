@@ -1,5 +1,5 @@
 json.record do
-  json.partial! 'api/v1/models/team', formats: [:json], resource: @team, cached: true
+  json.partial! 'api/v1/models/team', formats: [:json], resource: @team
 end
 
 json.members do

@@ -1,6 +1,6 @@
 json.records do
   json.array! @events do |event|
-    json.partial! 'api/v1/models/event', formats: [:json], resource: event, cached: true
+    json.partial! 'api/v1/models/event', formats: [:json], resource: event
   end
 end
 
