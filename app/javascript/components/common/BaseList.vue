@@ -147,6 +147,7 @@ export default {
       const params = {
         page: this.currentPage,
         name: this.searchTerm,
+        title: this.searchTerm,
       };
       this.$emit("fetch", params);
     },

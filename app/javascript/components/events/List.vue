@@ -98,7 +98,7 @@ export default {
     async handleFetch(params) {
       try {
         this.isLoading = true;
-        const response = await getEvents({ page: 1 });
+        const response = await getEvents(params);
         this.events = response.records;
         this.totalPages = response.total_pages;
       } catch (error) {
