@@ -46,6 +46,7 @@ gem 'faker'
 
 group :development, :test do
   gem 'rspec-rails'
+  gem 'foreman'
 end
 
 group :development do
