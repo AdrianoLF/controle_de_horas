@@ -43,10 +43,14 @@ REDIS_PASSWORD=your_redis_password
 REDIS_URL=redis://:your_redis_password@redis:6379/0
 ```
 
-3. Inicie a aplicação
+3. Faça a build
 
 ```bash
 docker-compose up --build
+bundle install
+npm install
+rails db:reset
+rails db:seed
 ```
 
 4. Acesse a aplicação

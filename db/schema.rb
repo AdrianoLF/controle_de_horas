@@ -58,23 +58,6 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
     t.index ["team_id"], name: "index_memberships_on_team_id"
   end
 
-  create_table "proponents", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "name", null: false
-    t.string "cpf", null: false
-    t.date "birth_date", null: false
-    t.jsonb "address"
-    t.jsonb "phones"
-    t.decimal "salary", precision: 15, scale: 2, null: false
-    t.decimal "inss_discount", precision: 15, scale: 2, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["cpf"], name: "index_proponents_on_cpf"
-    t.index ["name"], name: "index_proponents_on_name"
-    t.index ["user_id", "cpf"], name: "index_proponents_on_user_id_and_cpf", unique: true
-    t.index ["user_id"], name: "index_proponents_on_user_id"
-  end
-
   create_table "teams", force: :cascade do |t|
     t.string "name"
     t.text "description"
@@ -99,5 +82,4 @@ ActiveRecord::Schema[7.0].define(version: 2025_04_28_031115) do
   add_foreign_key "events", "teams"
   add_foreign_key "memberships", "members"
   add_foreign_key "memberships", "teams"
-  add_foreign_key "proponents", "users"
 end
