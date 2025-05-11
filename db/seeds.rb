@@ -1,4 +1,4 @@
-user1 = User.create!(email: 'john@acme.inc', password: 'Password1!')
+user1 = User.create!(email: 'john@acme.inc', password: 'Password1!', super_admin: true)
 
 team_dev = Team.create!(
   name: 'Development Team',
