@@ -1,4 +1,4 @@
-class Api::V1::MembersController < ApplicationController
+class Api::V1::MembersController < Api::V1::BaseController
   before_action :member, only: %i[destroy update]
 
   MAX_RESULTS = 10

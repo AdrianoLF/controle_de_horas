@@ -1,4 +1,4 @@
-class Api::V1::MembershipsController < ApplicationController
+class Api::V1::MembershipsController < Api::V1::BaseController
   before_action :set_team
 
   def create

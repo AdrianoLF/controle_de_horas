@@ -1,4 +1,4 @@
-class Api::V1::EventsController < ApplicationController
+class Api::V1::EventsController < Api::V1::BaseController
   before_action :event, only: %i[destroy update]
 
   MAX_RESULTS = 10

@@ -1,4 +1,4 @@
-class Api::V1::EventAssignmentsController < ApplicationController
+class Api::V1::EventAssignmentsController < Api::V1::BaseController
   def create
     @event_assignment = EventAssignment.new(permitted_params)
     

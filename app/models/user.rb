@@ -10,6 +10,7 @@
 #  remember_created_at    :datetime
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  suspended              :boolean          default(FALSE)
 #
 class User < ApplicationRecord
   # Fazendo isso pra quando precisar logar ou deslogar o user só inserir o token
