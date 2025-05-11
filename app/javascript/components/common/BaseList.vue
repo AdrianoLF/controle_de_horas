@@ -17,7 +17,7 @@
       </div>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4" v-if="addButtonText">
       <router-link :to="newItemRoute" class="btn btn-success">
         {{ addButtonText }}
       </router-link>

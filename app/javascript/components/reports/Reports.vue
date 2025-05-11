@@ -7,6 +7,7 @@
           <p>Sistema de controle de horas</p>
           <p>Use o menu para navegar entre as opções disponíveis.</p>
         </div>
+        <HoursList />
       </div>
     </div>
   </div>
@@ -14,8 +15,12 @@
 
 <script>
 import { mapGetters } from "vuex";
+import HoursList from "./HoursList.vue";
 
 export default {
+  components: {
+    HoursList,
+  },
   data() {
     return {};
   },
