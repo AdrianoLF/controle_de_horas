@@ -1,10 +1,9 @@
 class Api::V1::EventsController < Api::V1::BaseController
   before_action :event, only: %i[destroy update]
 
-  MAX_RESULTS = 10
-
   def index
-    @events = EventsFinder.new(permitted_params).perform.includes(:members, :team)
+    scope = EventsFinder.new(permitted_params).perform
+    @events = paginate(scope:, params: permitted_params)
   end
 
   def show

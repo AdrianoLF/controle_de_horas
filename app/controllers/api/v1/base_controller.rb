@@ -1,4 +1,6 @@
 class Api::V1::BaseController < ApplicationController
+  include PaginationHelper
+
   skip_before_action :authenticate_user!
   before_action :authenticate_user
   before_action :check_suspended_user

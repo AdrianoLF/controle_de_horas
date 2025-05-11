@@ -1,10 +1,9 @@
 class Api::V1::MembersController < Api::V1::BaseController
   before_action :member, only: %i[destroy update]
 
-  MAX_RESULTS = 10
-
   def index
-    @members = MembersFinder.new(permitted_params).perform.includes(:teams)
+    scope = MembersFinder.new(permitted_params).perform
+    @members = paginate(scope:, params: permitted_params)
   end
 
   def show

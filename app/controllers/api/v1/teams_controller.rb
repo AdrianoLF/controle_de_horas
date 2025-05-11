@@ -1,10 +1,9 @@
 class Api::V1::TeamsController < Api::V1::BaseController
   before_action :team, only: %i[destroy update]
 
-  MAX_RESULTS = 10
-
   def index
-    @teams = TeamsFinder.new(permitted_params).perform
+    scope = TeamsFinder.new(permitted_params).perform
+    @teams = paginate(scope:, params: permitted_params)
   end
 
   def show
