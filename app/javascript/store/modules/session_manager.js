@@ -40,8 +40,12 @@ const actions = {
         });
     });
   },
-  loginUser({ commit }, payload) {
-    new Promise((resolve, reject) => {
+  async loginUser({ commit }, payload) {
+    commit("resetUserInfo");
+
+    return new Promise((resolve, reject) => {
+      axios.defaults.headers.common["Authorization"] = null;
+
       axios
         .post(`${BASE_URL}users/sign_in`, payload)
         .then((response) => {
@@ -49,6 +53,9 @@ const actions = {
           resolve(response);
         })
         .catch((error) => {
+          if (error.response?.status === 401) {
+            commit("resetUserInfo");
+          }
           reject(error);
         });
     });
@@ -59,7 +66,8 @@ const actions = {
         Authorization: state.auth_token || localStorage.auth_token,
       },
     };
-    new Promise((resolve, reject) => {
+
+    return new Promise((resolve, reject) => {
       axios
         .delete(`${BASE_URL}users/sign_out`, config)
         .then(() => {
@@ -68,24 +76,6 @@ const actions = {
         })
         .catch((error) => {
           commit("resetUserInfo");
-          reject(error);
-        });
-    });
-  },
-  loginUserWithToken({ commit }, payload) {
-    const config = {
-      headers: {
-        Authorization: payload.auth_token,
-      },
-    };
-    new Promise((resolve, reject) => {
-      axios
-        .get(`${BASE_URL}member-data`, config)
-        .then((response) => {
-          commit("setUserInfoFromToken", response);
-          resolve(response);
-        })
-        .catch((error) => {
           reject(error);
         });
     });
@@ -109,7 +99,7 @@ const mutations = {
       email: null,
     };
     state.auth_token = null;
-    localStorage.auth_token = null;
+    localStorage.removeItem("auth_token");
     axios.defaults.headers.common["Authorization"] = null;
   },
 };
