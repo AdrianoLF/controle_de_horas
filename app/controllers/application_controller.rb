@@ -10,5 +10,7 @@ class ApplicationController < ActionController::Base
 
   def fetch_user_from_token
     UserFinder.new(request.headers['Authorization']).perform
+  rescue JWT::ExpiredSignature
+    render json: { error: 'Token expired' }, status: :unauthorized
   end
 end

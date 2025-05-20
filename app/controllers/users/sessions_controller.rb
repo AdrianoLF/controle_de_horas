@@ -20,5 +20,7 @@ class Users::SessionsController < Devise::SessionsController
 
   def fetch_user_from_token
     UserFinder.new(request.headers['Authorization']).perform
+  rescue JWT::ExpiredSignature
+    render json: { error: 'Token expired' }, status: :unauthorized
   end
 end

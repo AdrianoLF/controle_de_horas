@@ -40,5 +40,9 @@ Rails.application.routes.draw do
     end
   end
 
+  match 'api/*unmatched', to: proc {
+    [404, { 'Content-Type' => 'application/json' }, [{ error: 'Not Found' }.to_json]]
+  }, via: :all
+
   get '*path', to: 'pages#home', constraints: ->(req) { !req.xhr? && req.format.html? }
 end
