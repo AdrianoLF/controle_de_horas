@@ -18,12 +18,6 @@ gem 'puma', '~> 5.0'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem 'importmap-rails'
 
-# Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem 'turbo-rails'
-
-# Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem 'stimulus-rails'
-
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem 'jbuilder'
 
@@ -38,13 +32,10 @@ gem 'devise', '~> 4.9'
 gem 'devise-jwt', '~> 0.12.1'
 gem 'rack-cors', '~> 2.0'
 
-gem 'cpf_cnpj'
-
 gem 'kaminari'
 
-gem 'faker'
-
 group :development, :test do
+  gem 'faker'
   gem 'rspec-rails'
   gem 'foreman'
 end
