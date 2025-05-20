@@ -43,6 +43,11 @@
             </li>
           </ul>
           <ul class="navbar-nav">
+            <li class="nav-item" v-if="isLoggedIn">
+              <router-link to="/profile" class="nav-link" active-class="active">
+                Meu Perfil
+              </router-link>
+            </li>
             <li class="nav-item" v-if="!isLoggedIn">
               <router-link to="/login" class="nav-link btn btn-outline-light"
                 >Login</router-link
