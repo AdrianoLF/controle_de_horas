@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getMembers, deleteMember } from "@/api/members";
 import BaseList from "../common/BaseList.vue";
 
@@ -63,28 +64,40 @@ export default {
   },
   methods: {
     async handleFetch(params) {
-      try {
-        const response = await getMembers(params);
-        this.members = response.records;
-        this.totalPages = response.total_pages || 1;
-        this.isLoading = false;
-      } catch (error) {
-        this.isLoading = false;
-        let message =
-          error?.response?.data?.errors?.[0] || "Erro ao buscar membros";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => getMembers(params),
+        processOnSuccess: (response) => {
+          this.members = response.records;
+          this.totalPages = response.total_pages || 1;
+          this.isLoading = false;
+        },
+        errorMessage: "Erro ao buscar membros",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+      });
     },
     async deleteRecord(id) {
       if (confirm("Tem certeza que deseja deletar este membro?")) {
-        try {
-          await deleteMember(id);
-          this.handleFetch({ page: 1 });
-        } catch (error) {
-          let message =
-            error?.response?.data?.errors?.[0] || "Erro ao deletar membro";
-          this.$eventBus.emit("displayAlert", message);
-        }
+        await handleRequest({
+          request: () => deleteMember(id),
+          processOnSuccess: () => {
+            this.handleFetch({ page: 1 });
+          },
+          successMessage: "Membro deletado com sucesso",
+          errorMessage: "Erro ao deletar membro",
+          eventBus: this.$eventBus,
+          processOnStart: () => {
+            this.isLoading = true;
+          },
+          processOnFinally: () => {
+            this.isLoading = false;
+          },
+        });
       }
     },
   },

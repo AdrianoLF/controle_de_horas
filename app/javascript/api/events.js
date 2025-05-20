@@ -20,5 +20,10 @@ export const addMemberToEvent = (eventId, memberId) =>
     member_id: memberId,
   });
 
-export const removeMemberFromEvent = (id) =>
-  apiClient.delete(`/event_assignments/${id}`);
+export const removeMemberFromEvent = (eventId, memberId) =>
+  apiClient.delete(`/event_assignments/destroy_relationship`, {
+    params: {
+      event_id: eventId,
+      member_id: memberId,
+    },
+  });

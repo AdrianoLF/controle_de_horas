@@ -99,6 +99,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getEvent } from "@/api/events";
 import { getMembers } from "@/api/members";
 import { addMemberToEvent, removeMemberFromEvent } from "@/api/events";
@@ -125,27 +126,27 @@ export default {
 
   methods: {
     async fetchEvent() {
-      try {
-        const { record } = await getEvent(this.$route.params.id);
-        this.event = record;
-        this.eventMembers = record.members || [];
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar evento";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => getEvent(this.$route.params.id),
+        processOnSuccess: (response) => {
+          this.event = response.record;
+          this.eventMembers = response.record.members || [];
+        },
+        errorMessage: "Erro ao carregar evento",
+        eventBus: this.$eventBus,
+      });
     },
 
     async fetchMembers() {
-      try {
-        const { records } = await getMembers({ all_records: true });
-        const allMembers = records || [];
-        this.updateAvailableMembers(allMembers);
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar membros";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => getMembers({ all_records: true }),
+        processOnSuccess: (response) => {
+          const allMembers = response.records || [];
+          this.updateAvailableMembers(allMembers);
+        },
+        errorMessage: "Erro ao carregar membros",
+        eventBus: this.$eventBus,
+      });
     },
 
     updateAvailableMembers(allMembers) {
@@ -173,47 +174,44 @@ export default {
     async addSelectedMember() {
       if (!this.selectedMemberId) return;
 
-      try {
-        this.loadingTable = true;
-        await addMemberToEvent(this.$route.params.id, this.selectedMemberId);
-        this.selectedMemberId = "";
-        await this.refreshData();
-        this.$eventBus.emit(
-          "displayAlert",
-          "Membro adicionado com sucesso",
-          "success"
-        );
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao adicionar membro";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loadingTable = false;
-      }
+      await handleRequest({
+        request: () =>
+          addMemberToEvent(this.$route.params.id, this.selectedMemberId),
+        processOnSuccess: async () => {
+          this.selectedMemberId = "";
+          await this.refreshData();
+        },
+        successMessage: "Membro adicionado com sucesso",
+        errorMessage: "Erro ao adicionar membro",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loadingTable = true;
+        },
+        processOnFinally: () => {
+          this.loadingTable = false;
+        },
+      });
     },
 
     async removeMember(member) {
       if (!confirm("Tem certeza que deseja remover este membro do evento?"))
         return;
 
-      try {
-        this.loadingTable = true;
-        if (member && member.event_assignment_id) {
-          await removeMemberFromEvent(member.event_assignment_id);
+      await handleRequest({
+        request: () => removeMemberFromEvent(this.event.id, member.id),
+        processOnSuccess: async () => {
           await this.refreshData();
-          this.$eventBus.emit(
-            "displayAlert",
-            "Membro removido com sucesso",
-            "success"
-          );
-        }
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao remover membro";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loadingTable = false;
-      }
+        },
+        successMessage: "Membro removido com sucesso",
+        errorMessage: "Erro ao remover membro",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loadingTable = true;
+        },
+        processOnFinally: () => {
+          this.loadingTable = false;
+        },
+      });
     },
 
     async refreshData() {

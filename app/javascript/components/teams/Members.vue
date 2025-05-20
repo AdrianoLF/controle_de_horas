@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getTeam } from "@/api/teams";
 import { getMembers } from "@/api/members";
 import { addMember, removeMember } from "@/api/teams";
@@ -121,26 +122,36 @@ export default {
   },
   methods: {
     async fetchData() {
-      this.isLoading = true;
-      try {
-        await Promise.all([this.fetchTeam(), this.fetchAllMembers()]);
-        this.isLoading = false;
-      } catch (error) {
-        this.isLoading = false;
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar dados";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => Promise.all([this.fetchTeam(), this.fetchAllMembers()]),
+        processOnSuccess: () => {
+          this.isLoading = false;
+        },
+        errorMessage: "Erro ao carregar dados",
+        eventBus: this.$eventBus,
+      });
     },
     async fetchTeam() {
-      const response = await getTeam(this.teamId);
-      this.team = response.record;
-      this.teamMembers = response.members || [];
+      await handleRequest({
+        request: () => getTeam(this.teamId),
+        processOnSuccess: (response) => {
+          this.team = response.record;
+          this.teamMembers = response.members || [];
+        },
+        errorMessage: "Erro ao buscar time",
+        eventBus: this.$eventBus,
+      });
     },
     async fetchAllMembers() {
-      const response = await getMembers({ all_records: true });
-      this.allMembers = response.records || [];
-      this.filteredMembers = this.allMembers;
+      await handleRequest({
+        request: () => getMembers({ all_records: true }),
+        processOnSuccess: (response) => {
+          this.allMembers = response.records || [];
+          this.filteredMembers = this.allMembers;
+        },
+        errorMessage: "Erro ao buscar membros",
+        eventBus: this.$eventBus,
+      });
     },
     filterMembers() {
       const query = this.searchQuery.toLowerCase();
@@ -151,30 +162,32 @@ export default {
     async addMember() {
       if (!this.selectedMemberId) return;
 
-      try {
-        const response = await addMember(this.teamId, this.selectedMemberId);
-        this.team = response.team;
-        this.teamMembers = response.members || [];
-        this.selectedMemberId = "";
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao adicionar membro";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => addMember(this.teamId, this.selectedMemberId),
+        processOnSuccess: (response) => {
+          this.team = response.team;
+          this.teamMembers = response.members || [];
+          this.selectedMemberId = "";
+        },
+        successMessage: "Membro adicionado com sucesso",
+        errorMessage: "Erro ao adicionar membro",
+        eventBus: this.$eventBus,
+      });
     },
     async removeMember(memberId) {
       if (!confirm("Tem certeza que deseja remover este membro do time?"))
         return;
 
-      try {
-        const response = await removeMember(this.teamId, memberId);
-        this.team = response.team;
-        this.teamMembers = response.members || [];
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao remover membro";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => removeMember(this.teamId, memberId),
+        processOnSuccess: (response) => {
+          this.team = response.team;
+          this.teamMembers = response.members || [];
+        },
+        successMessage: "Membro removido com sucesso",
+        errorMessage: "Erro ao remover membro",
+        eventBus: this.$eventBus,
+      });
     },
   },
 };

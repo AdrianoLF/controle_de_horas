@@ -94,6 +94,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getEvent, createEvent, editEvent } from "@/api/events";
 import { getTeams } from "@/api/teams";
 
@@ -150,68 +151,89 @@ export default {
     },
 
     async fetchEvent() {
-      try {
-        this.loading = true;
-        const { record } = await getEvent(this.eventId);
-        this.event = record;
-
-        this.formData.title = record.title;
-        this.formData.description = record.description || "";
-        this.formData.team_id = record.team_id;
-        this.formData.duration_seconds = record.duration_seconds;
-
-        this.parseSeconds(record.duration_seconds);
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] ||
-          "Erro ao buscar dados do evento";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () => getEvent(this.eventId),
+        processOnSuccess: (response) => {
+          const record = response.record;
+          this.event = record;
+          this.formData.title = record.title;
+          this.formData.description = record.description || "";
+          this.formData.team_id = record.team_id;
+          this.formData.duration_seconds = record.duration_seconds;
+          this.parseSeconds(record.duration_seconds);
+        },
+        errorMessage: "Erro ao buscar dados do evento",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
 
     async fetchTeams() {
-      try {
-        this.loading = true;
-        const { records } = await getTeams({ all_records: true });
-        this.teams = records;
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar times";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () => getTeams({ all_records: true }),
+        processOnSuccess: (response) => {
+          this.teams = response.records;
+        },
+        errorMessage: "Erro ao carregar times",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
 
     async submitForm() {
-      try {
-        this.calculateDuration();
+      this.calculateDuration();
 
-        if (this.formData.duration_seconds <= 0) {
-          this.errors = {
-            duration_seconds: "A duração deve ser maior que zero",
-          };
-          return;
-        }
+      if (this.formData.duration_seconds <= 0) {
+        this.errors = {
+          duration_seconds: "A duração deve ser maior que zero",
+        };
+        return;
+      }
 
-        this.loading = true;
-        this.errors = {};
+      this.errors = {};
 
-        if (this.isEditing) {
-          await editEvent(this.eventId, this.formData);
-        } else {
-          await createEvent(this.formData);
-        }
-
-        this.$router.push({ name: "EventsList" });
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao salvar evento";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
+      if (this.isEditing) {
+        await handleRequest({
+          request: () => editEvent(this.eventId, this.formData),
+          processOnSuccess: () => {
+            this.$router.push({ name: "EventsList" });
+          },
+          successMessage: "Evento salvo com sucesso",
+          errorMessage: "Erro ao salvar evento",
+          eventBus: this.$eventBus,
+          processOnStart: () => {
+            this.loading = true;
+          },
+          processOnFinally: () => {
+            this.loading = false;
+          },
+        });
+      } else {
+        await handleRequest({
+          request: () => createEvent(this.formData),
+          processOnSuccess: () => {
+            this.$router.push({ name: "EventsList" });
+          },
+          successMessage: "Evento criado com sucesso",
+          errorMessage: "Erro ao criar evento",
+          eventBus: this.$eventBus,
+          processOnStart: () => {
+            this.loading = true;
+          },
+          processOnFinally: () => {
+            this.loading = false;
+          },
+        });
       }
     },
   },

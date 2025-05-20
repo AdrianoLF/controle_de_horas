@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getMember, createMember, editMember } from "@/api/members";
 
 export default {
@@ -99,35 +100,43 @@ export default {
 
   methods: {
     async fetchMember() {
-      try {
-        this.loading = true;
-        const { record, teams } = await getMember(this.memberId);
-        this.member = record;
-        this.memberTeams = teams || [];
-        this.formData.name = record?.name || "";
-      } catch (e) {
-        const msg =
-          e?.response?.data?.errors?.[0] || "Erro ao buscar dados do membro";
-        this.$eventBus.emit("displayAlert", msg);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () => getMember(this.memberId),
+        processOnSuccess: (response) => {
+          this.member = response.record;
+          this.memberTeams = response.record.teams || [];
+          this.formData.name = response.record?.name || "";
+        },
+        errorMessage: "Erro ao buscar dados do membro",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
 
     async submitForm() {
-      try {
-        this.loading = true;
-        this.isEditing
-          ? await editMember(this.memberId, this.formData)
-          : await createMember(this.formData);
-
-        this.$router.push("/members");
-      } catch (e) {
-        const msg = e?.response?.data?.errors?.[0] || "Erro ao salvar membro";
-        this.$eventBus.emit("displayAlert", msg);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () =>
+          this.isEditing
+            ? editMember(this.memberId, this.formData)
+            : createMember(this.formData),
+        processOnSuccess: () => {
+          this.$router.push("/members");
+        },
+        successMessage: "Membro salvo com sucesso",
+        errorMessage: "Erro ao salvar membro",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
   },
 };

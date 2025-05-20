@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getUserProfile, updateUserProfile } from "@/api/users";
 
 export default {
@@ -124,16 +125,17 @@ export default {
 
   methods: {
     async fetchUserProfile(params) {
-      try {
-        const response = await getUserProfile(params);
-        this.userProfile = response.record;
-      } catch (error) {
-        let message =
-          error?.response?.data?.errors?.[0] || "Erro ao buscar perfil";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () => getUserProfile(params),
+        processOnSuccess: (response) => {
+          this.userProfile = response.record;
+        },
+        errorMessage: "Erro ao buscar perfil",
+        eventBus: this.$eventBus,
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
 
     enableEdit() {
@@ -152,24 +154,23 @@ export default {
       };
     },
 
-    updateProfile() {
-      this.saving = true;
-
-      updateUserProfile({ user: this.editedUser })
-        .then((response) => {
+    async updateProfile() {
+      await handleRequest({
+        request: () => updateUserProfile({ user: this.editedUser }),
+        processOnSuccess: (response) => {
           this.userProfile = response.record;
           this.editMode = false;
+        },
+        successMessage: "Perfil atualizado com sucesso!",
+        errorMessage: "Erro ao atualizar perfil",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.saving = true;
+        },
+        processOnFinally: () => {
           this.saving = false;
-
-          this.$eventBus.emit("displayAlert", "Perfil atualizado com sucesso!");
-        })
-        .catch((error) => {
-          let message =
-            error?.response?.data?.errors?.[0] || "Erro ao atualizar perfil";
-          this.$eventBus.emit("displayAlert", message);
-
-          this.saving = false;
-        });
+        },
+      });
     },
 
     formatDate(dateString) {

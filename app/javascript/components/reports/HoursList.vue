@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getHoursReport } from "@/api/superadmin/reports";
 import BaseList from "../common/BaseList.vue";
 
@@ -35,17 +36,22 @@ export default {
   },
   methods: {
     async handleFetch(params) {
-      try {
-        const response = await getHoursReport(params);
-        this.members = response.records;
-        this.totalPages = response.total_pages || 1;
-        this.isLoading = false;
-      } catch (error) {
-        this.isLoading = false;
-        let message =
-          error?.response?.data?.errors?.[0] || "Erro ao buscar relatório";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => getHoursReport(params),
+        processOnSuccess: (response) => {
+          this.members = response.records;
+          this.totalPages = response.total_pages || 1;
+          this.isLoading = false;
+        },
+        errorMessage: "Erro ao buscar relatório",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+      });
     },
     transformSecondsToHoursAndMinutes(seconds) {
       const hours = Math.floor(seconds / 3600);

@@ -51,7 +51,9 @@
                   required
                 />
               </div>
-              <button type="submit.prevent" class="btn btn-primary">Login</button>
+              <button type="submit.prevent" class="btn btn-primary">
+                Login
+              </button>
               <span v-if="loginError" class="text-danger ml-2">{{
                 loginError
               }}</span>
@@ -83,7 +85,9 @@
                   required
                 />
               </div>
-              <button type="submit.prevent" class="btn btn-success">Registrar</button>
+              <button type="submit.prevent" class="btn btn-success">
+                Registrar
+              </button>
               <span v-if="signUpError" class="text-danger ml-2">{{
                 signUpError
               }}</span>
@@ -96,6 +100,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import "@/store/index.js";
 import { mapActions, mapGetters } from "vuex";
 
@@ -146,19 +151,30 @@ export default {
       }
     },
     async onLogin(event) {
-      event.preventDefault();
       let data = {
         user: {
           email: this.loginEmail,
           password: this.loginPassword,
         },
       };
-      try {
-        await this.loginUser(data);
-        this.resetData();
-      } catch (error) {
-        this.loginError = "Erro ao fazer login.";
-      }
+      await handleRequest({
+        request: () => this.loginUser(data),
+        processOnSuccess: () => {
+          this.resetData();
+        },
+        successMessage: "Login realizado com sucesso.",
+        errorMessage: "Erro ao fazer login.",
+        eventBus: this.$eventBus,
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnError: () => {
+          this.loginError = "Erro ao fazer login.";
+        },
+      });
     },
     resetData() {
       this.signUpEmail = "";

@@ -9,8 +9,8 @@ class Api::V1::EventAssignmentsController < Api::V1::BaseController
     end
   end
 
-  def destroy
-    @event_assignment = EventAssignment.find(params[:id])
+  def destroy_relationship
+    @event_assignment = EventAssignment.find_by(member_id: permitted_params[:member_id], event_id: permitted_params[:event_id])
     @event_assignment.destroy!
     head :ok
   end

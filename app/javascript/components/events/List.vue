@@ -67,6 +67,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getEvents, deleteEvent as deleteEventApi } from "@/api/events";
 import { getTeams } from "@/api/teams";
 import BaseList from "../common/BaseList.vue";
@@ -90,40 +91,48 @@ export default {
   },
 
   mounted() {
-    this.handleFetch({ page: 1 });
     this.loadTeams();
   },
 
   methods: {
     async handleFetch(params) {
-      try {
-        this.isLoading = true;
-        const response = await getEvents(params);
-        this.events = response.records;
-        this.totalPages = response.total_pages;
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar eventos";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.isLoading = false;
-      }
+      await handleRequest({
+        request: () => getEvents(params),
+        processOnSuccess: (response) => {
+          this.events = response.records;
+          this.totalPages = response.total_pages;
+        },
+        errorMessage: "Erro ao carregar eventos",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+      });
     },
 
     async loadTeams() {
-      try {
-        const response = await getTeams({ all_records: true });
-        this.teams = response.records;
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao carregar times";
-        this.$eventBus.emit("displayAlert", message);
-      }
+      await handleRequest({
+        request: () => getTeams({ all_records: true }),
+        processOnSuccess: (response) => {
+          this.teams = response.records;
+        },
+        errorMessage: "Erro ao carregar times",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+      });
     },
 
     getTeamName(teamId) {
       const team = this.teams.find((t) => t.id === teamId);
-      return team ? team.name : "Time não encontrado";
+      return team ? team.name : "-";
     },
 
     formatDuration(seconds) {
@@ -142,24 +151,23 @@ export default {
     },
 
     async deleteEvent() {
-      try {
-        this.isLoading = true;
-        await deleteEventApi(this.eventToDelete.id);
-        await this.handleFetch();
-        this.deleteModal = false;
-        this.eventToDelete = null;
-        this.$eventBus.emit(
-          "displayAlert",
-          "Evento excluído com sucesso",
-          "success"
-        );
-      } catch (error) {
-        const message =
-          error?.response?.data?.errors?.[0] || "Erro ao excluir evento";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.isLoading = false;
-      }
+      await handleRequest({
+        request: () => deleteEventApi(this.eventToDelete.id),
+        processOnSuccess: () => {
+          this.handleFetch();
+          this.deleteModal = false;
+          this.eventToDelete = null;
+        },
+        successMessage: "Evento excluído com sucesso",
+        errorMessage: "Erro ao excluir evento",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.isLoading = true;
+        },
+        processOnFinally: () => {
+          this.isLoading = false;
+        },
+      });
     },
   },
 };

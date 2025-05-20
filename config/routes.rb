@@ -28,7 +28,11 @@ Rails.application.routes.draw do
       end
 
       resources :events, only: %i[index update create destroy show]
-      resources :event_assignments, only: [:create, :destroy]
+      resources :event_assignments, only: [:create] do
+        collection do
+          delete :destroy_relationship
+        end
+      end
 
       # SUPER ADMIN SECTION
       namespace :super_admin do

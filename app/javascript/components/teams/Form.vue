@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { handleRequest } from "@/helper/request";
 import { getTeam, createTeam, editTeam } from "@/api/teams";
 
 export default {
@@ -65,35 +66,41 @@ export default {
   },
   methods: {
     async fetchTeam() {
-      try {
-        this.loading = true;
-        const { record } = await getTeam(this.teamId);
-        this.team = record;
-        this.formData = { name: record?.name };
-      } catch (error) {
-        let message =
-          error?.response?.data?.errors?.[0] || "Erro ao buscar dados do time";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () => getTeam(this.teamId),
+        processOnSuccess: (response) => {
+          this.team = response.record;
+          this.formData = { name: response.record?.name };
+        },
+        errorMessage: "Erro ao buscar dados do time",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
     async submitForm() {
-      try {
-        this.loading = true;
-        if (this.isEditing) {
-          await editTeam(this.teamId, this.formData);
-        } else {
-          await createTeam(this.formData);
-        }
-        this.$router.push("/teams");
-      } catch (error) {
-        let message =
-          error?.response?.data?.errors?.[0] || "Erro ao salvar time";
-        this.$eventBus.emit("displayAlert", message);
-      } finally {
-        this.loading = false;
-      }
+      await handleRequest({
+        request: () =>
+          this.isEditing
+            ? editTeam(this.teamId, this.formData)
+            : createTeam(this.formData),
+        processOnSuccess: () => {
+          this.$router.push("/teams");
+        },
+        successMessage: "Time salvo com sucesso",
+        errorMessage: "Erro ao salvar time",
+        eventBus: this.$eventBus,
+        processOnStart: () => {
+          this.loading = true;
+        },
+        processOnFinally: () => {
+          this.loading = false;
+        },
+      });
     },
   },
 };
