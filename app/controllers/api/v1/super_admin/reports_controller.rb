@@ -7,6 +7,6 @@ class Api::V1::SuperAdmin::ReportsController < Api::V1::SuperAdmin::BaseControll
   private
 
   def permitted_params
-    params.permit(:name, :all_records, :page)
+    params.permit(:name, :page)
   end
 end
