@@ -17,7 +17,10 @@
         </router-link>
       </td>
       <td>
-        <div v-if="member.teams && member.teams.length > 0">
+        <div
+          v-if="member.teams && member.teams.length > 0"
+          class="d-flex gap-1"
+        >
           <div
             v-for="team in member.teams"
             :key="team.id"
