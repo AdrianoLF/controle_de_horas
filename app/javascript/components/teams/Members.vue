@@ -56,8 +56,8 @@
         <table class="table">
           <thead>
             <tr>
-              <th scope="col">#</th>
               <th scope="col">Nome</th>
+              <th scope="col">Função</th>
               <th scope="col"></th>
             </tr>
           </thead>
@@ -71,8 +71,15 @@
               </td>
             </tr>
             <tr v-else v-for="member in teamMembers" :key="member.id">
-              <th scope="row">{{ member.id }}</th>
-              <td>{{ member.name }}</td>
+              <td>
+                <router-link
+                  :to="`/members/${member.id}`"
+                  class="text-decoration-none"
+                >
+                  {{ member.name }}
+                </router-link>
+              </td>
+              <td class="text-capitalize">{{ getMemberRole(member.id) }}</td>
               <td>
                 <button
                   @click="removeMember(member.id)"
@@ -101,6 +108,7 @@ export default {
     return {
       team: {},
       teamMembers: [],
+      memberships: [],
       allMembers: [],
       filteredMembers: [],
       selectedMemberId: "",
@@ -137,8 +145,9 @@ export default {
         processOnSuccess: (response) => {
           this.team = response.record;
           this.teamMembers = response.members || [];
+          this.memberships = response.memberships || [];
         },
-        errorMessage: "Erro ao buscar time",
+        errorMessage: "Erro ao carregar dados do time",
         eventBus: this.$eventBus,
       });
     },
@@ -188,6 +197,10 @@ export default {
         errorMessage: "Erro ao remover membro",
         eventBus: this.$eventBus,
       });
+    },
+    getMemberRole(memberId) {
+      const membership = this.memberships.find((m) => m.member_id === memberId);
+      return membership ? membership.role : "member";
     },
   },
 };

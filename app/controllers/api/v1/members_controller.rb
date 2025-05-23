@@ -7,7 +7,7 @@ class Api::V1::MembersController < Api::V1::BaseController
   end
 
   def show
-    member.includes(:teams)
+    member
   end
 
   def create
@@ -31,7 +31,7 @@ class Api::V1::MembersController < Api::V1::BaseController
   end
 
   def member
-    @member ||= Member.find(params[:id])
+    @member ||= Member.includes(:memberships, :teams).find(params[:id])
   end
 
   def render_error

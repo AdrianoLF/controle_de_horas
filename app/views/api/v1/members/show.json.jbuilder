@@ -7,3 +7,9 @@ json.teams do
     json.partial! 'api/v1/models/team', formats: [:json], resource: team
   end
 end
+
+json.memberships do
+  json.array! @member.memberships do |membership|
+    json.partial! 'api/v1/models/membership', formats: [:json], resource: membership
+  end
+end

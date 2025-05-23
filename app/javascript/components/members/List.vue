@@ -11,7 +11,11 @@
     @fetch="handleFetch"
   >
     <template #row="{ item: member }">
-      <td>{{ member.name }}</td>
+      <td>
+        <router-link :to="`/members/${member.id}`" class="text-decoration-none">
+          {{ member.name }}
+        </router-link>
+      </td>
       <td>
         <div v-if="member.teams && member.teams.length > 0">
           <div
@@ -30,12 +34,6 @@
         <span v-else>Nenhum time</span>
       </td>
       <td class="d-flex gap-2">
-        <router-link
-          :to="`/members/edit/${member.id}`"
-          class="btn btn-primary btn-sm"
-        >
-          Editar
-        </router-link>
         <button class="btn btn-danger btn-sm" @click="deleteRecord(member.id)">
           Deletar
         </button>

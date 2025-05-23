@@ -29,7 +29,7 @@ const routes = [
     component: MemberForm,
   },
   {
-    path: "/members/edit/:id",
+    path: "/members/:id",
     name: "MemberEdit",
     component: MemberForm,
     props: true,

@@ -9,53 +9,84 @@
       <h1 class="mb-4">{{ title }}</h1>
 
       <form @submit.prevent="submitForm">
-        <div class="mb-3">
-          <label for="name" class="form-label">Nome</label>
-          <input
-            id="name"
-            type="text"
-            class="form-control"
-            v-model="formData.name"
-            required
-          />
+        <div class="mb-3 d-flex flex-column gap-2">
+          <div>
+            <label for="name">Nome</label>
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              v-model="formData.name"
+              required
+            />
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Salvar</button>
+            <router-link to="/members" class="btn btn-secondary"
+              >Cancelar</router-link
+            >
+          </div>
         </div>
+
+        <hr class="my-4" />
 
         <div class="mb-4">
-          <h5>Times</h5>
-          <div v-if="memberTeams && memberTeams.length > 0">
-            <div
-              v-for="team in memberTeams"
-              :key="team.id"
-              class="d-flex align-items-center mb-2 p-2 border rounded"
-            >
-              <div class="ms-auto">
-                <router-link
-                  :to="`/teams/${team.id}/members`"
-                  class="btn btn-outline-primary btn-sm me-2"
-                >
-                  <span>{{ team.name }}</span>
-                </router-link>
-              </div>
+          <div class="card">
+            <div class="card-header bg-primary text-white">Times do Membro</div>
+            <div class="card-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Função</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="loading">
+                    <td colspan="3" class="text-center">Carregando...</td>
+                  </tr>
+                  <tr v-else-if="!memberships || memberships.length === 0">
+                    <td colspan="3" class="text-center">
+                      Este membro não pertence a nenhum time.
+                    </td>
+                  </tr>
+                  <tr
+                    v-else
+                    v-for="membership in memberships"
+                    :key="membership.id"
+                  >
+                    <td>
+                      <router-link
+                        :to="`/teams/${membership.team.id}/members`"
+                        class="text-decoration-none"
+                      >
+                        {{ membership.team.name }}
+                      </router-link>
+                    </td>
+                    <td class="text-capitalize">{{ membership.role }}</td>
+                    <td>
+                      <button
+                        type="button"
+                        @click.prevent="removeMembership(membership.team_id)"
+                        class="btn btn-danger btn-sm"
+                      >
+                        Remover
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <router-link
+                v-if="isEditing"
+                to="/teams"
+                class="btn btn-success btn-sm mt-2"
+              >
+                Adicionar a Novo Time
+              </router-link>
             </div>
           </div>
-          <div v-else class="alert alert-info">
-            Este membro não pertence a nenhum time
-          </div>
-
-          <router-link
-            v-if="isEditing"
-            to="/teams"
-            class="btn btn-outline-success btn-sm mt-2"
-          >
-            Adicionar a Novo Time
-          </router-link>
-        </div>
-
-        <div class="d-flex gap-2">
-          <button class="btn btn-primary" type="submit">Salvar</button>
-          <router-link to="/members" class="btn btn-secondary"
-            >Cancelar</router-link
-          >
         </div>
       </form>
     </template>
@@ -65,6 +96,7 @@
 <script>
 import { handleRequest } from "@/helper/request";
 import { getMember, createMember, editMember } from "@/api/members";
+import { removeMember } from "@/api/teams";
 
 export default {
   name: "MemberForm",
@@ -73,7 +105,7 @@ export default {
     return {
       formData: { name: "" },
       member: null,
-      memberTeams: [],
+      memberships: [],
       isEditing: false,
       memberId: null,
       loading: false,
@@ -103,8 +135,11 @@ export default {
         request: () => getMember(this.memberId),
         processOnSuccess: (response) => {
           this.member = response.record;
-          this.memberTeams = response.record.teams || [];
           this.formData.name = response.record?.name || "";
+          this.memberships = response.memberships.map((membership) => ({
+            ...membership,
+            team: response.teams.find((team) => team.id === membership.team_id),
+          }));
         },
         errorMessage: "Erro ao buscar dados do membro",
         eventBus: this.$eventBus,
@@ -116,7 +151,22 @@ export default {
         },
       });
     },
+    async removeMembership(teamId) {
+      if (!confirm("Tem certeza que deseja remover este membro do time?"))
+        return;
 
+      await handleRequest({
+        request: () => removeMember(teamId, this.memberId),
+        processOnSuccess: () => {
+          this.memberships = this.memberships.filter(
+            (m) => m.team_id !== teamId
+          );
+        },
+        successMessage: "Membro removido do time com sucesso",
+        errorMessage: "Erro ao remover membro do time",
+        eventBus: this.$eventBus,
+      });
+    },
     async submitForm() {
       await handleRequest({
         request: () =>
