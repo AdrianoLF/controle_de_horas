@@ -27,7 +27,7 @@ class Api::V1::EventsController < Api::V1::BaseController
   private
 
   def permitted_params
-    params.permit(:duration_seconds, :team_id, :title, :description)
+    params.permit(:duration_seconds, :team_id, :title, :description, :page)
   end
 
   def event
