@@ -4,10 +4,36 @@
 
     <nav
       v-if="isLoggedIn"
-      class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow"
+      class="navbar navbar-expand-lg navbar-dark bg-danger fixed-top shadow"
     >
-      <div class="container-fluid">
-        <router-link to="/" class="navbar-brand">MeuApp</router-link>
+      <div
+        class="container-fluid d-flex justify-content-center align-items-center"
+      >
+        <div class="d-flex gap-3 align-items-center">
+          <router-link to="/" class="navbar-brand m-0">
+            <div
+              class="bg-white rounded-pill p-2 d-flex justify-content-center align-items-center"
+            >
+              <img
+                :src="codelabTeenLogoUrl"
+                alt="Codelab Teen Logo"
+                style="height: 20px"
+              />
+            </div>
+          </router-link>
+          <!-- <router-link to="/" class="navbar-brand m-0">
+            <div
+              class="bg-white rounded-pill p-2 d-flex justify-content-center align-items-center"
+            >
+              <img
+                :src="unifespLogoUrl"
+                alt="Unifesp Logo"
+                style="height: 30px"
+              />
+            </div>
+          </router-link> -->
+        </div>
+
         <button
           class="navbar-toggler"
           type="button"
@@ -72,6 +98,8 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import AlertBox from "./Alert.vue";
+import unifespLogo from "../images/unifesp-logo.png";
+import codelabTeenLogo from "../images/codelab-teen-logo.png";
 
 export default {
   name: "App",
@@ -80,6 +108,12 @@ export default {
   },
   computed: {
     ...mapGetters("sessionManager", ["isLoggedIn"]),
+    unifespLogoUrl() {
+      return unifespLogo;
+    },
+    codelabTeenLogoUrl() {
+      return codelabTeenLogo;
+    },
   },
   methods: {
     ...mapActions("sessionManager", ["logoutUser"]),
