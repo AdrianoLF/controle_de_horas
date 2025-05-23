@@ -2,12 +2,12 @@ class Api::V1::MembersController < Api::V1::BaseController
   before_action :member, only: %i[destroy update]
 
   def index
-    scope = MembersFinder.new(permitted_params).perform
+    scope = MembersFinder.new(permitted_params).perform.includes(:teams)
     @members = paginate(scope:, params: permitted_params)
   end
 
   def show
-    member
+    member.includes(:teams)
   end
 
   def create

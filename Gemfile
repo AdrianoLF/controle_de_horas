@@ -36,20 +36,21 @@ gem 'kaminari'
 
 group :development, :test do
   gem 'faker'
-  gem 'rspec-rails'
   gem 'foreman'
+  gem 'rspec-rails'
 end
 
 group :development do
   gem 'annotate'
+  gem 'lefthook', '~> 1.11'
   gem 'rubocop', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
   gem 'ruby-lsp'
-  gem 'web-console'
+  gem 'rufo', require: false
   gem 'solargraph'
-  gem 'rufo'
+  gem 'web-console'
 end
 
 group :test do

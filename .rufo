@@ -1,0 +1,8 @@
+align_case_when true
+align_chained_calls true
+double_quotes false
+freeze_string_literals false
+indent_size: 2
+line_width: 120
+parentheses: dynamic
+trailing_commas false
