@@ -11,7 +11,11 @@
     @fetch="handleFetch"
   >
     <template #row="{ item: team }">
-      <td>{{ team.name }}</td>
+      <td>
+        <router-link :to="`/teams/${team.id}`" class="text-decoration-none">
+          {{ team.name }}
+        </router-link>
+      </td>
       <td>
         <router-link
           :to="`/teams/${team.id}/members`"
@@ -21,14 +25,8 @@
         </router-link>
       </td>
       <td class="d-flex gap-2">
-        <router-link
-          :to="`/teams/edit/${team.id}`"
-          class="btn btn-primary btn-sm"
-        >
-          Editar
-        </router-link>
         <button class="btn btn-danger btn-sm" @click="deleteRecord(team.id)">
-          Deletar
+          Excluir
         </button>
       </td></template
     >
@@ -72,14 +70,16 @@ export default {
       });
     },
     async deleteRecord(id) {
-      if (confirm("Tem certeza que deseja deletar este time?")) {
+      if (
+        confirm("Tem certeza que deseja excluir PERMANENTEMENTE este time?")
+      ) {
         await handleRequest({
           request: () => deleteTeam(id),
           processOnSuccess: () => {
             this.handleFetch({ page: 1 });
           },
-          successMessage: "Time deletado com sucesso",
-          errorMessage: "Erro ao deletar time",
+          successMessage: "Time excluído com sucesso",
+          errorMessage: "Erro ao excluir time",
           eventBus: this.$eventBus,
         });
       }

@@ -47,7 +47,7 @@ const routes = [
     component: TeamForm,
   },
   {
-    path: "/teams/edit/:id",
+    path: "/teams/:id",
     name: "TeamEdit",
     component: TeamForm,
     props: true,
@@ -71,7 +71,7 @@ const routes = [
     component: EventForm,
   },
   {
-    path: "/events/edit/:id",
+    path: "/events/:id",
     name: "EventEdit",
     component: EventForm,
     props: true,

@@ -9,7 +9,11 @@
     @fetch="handleFetch"
   >
     <template #row="{ item: member }">
-      <td>{{ member.name }}</td>
+      <td>
+        <router-link :to="`/members/${member.id}`" class="text-decoration-none">
+          {{ member.name }}
+        </router-link>
+      </td>
       <td>{{ transformSecondsToHoursAndMinutes(member.total_seconds) }}</td>
       <td>{{ member.event_count }}</td>
       <td>{{ formatDate(member.created_at) }}</td>

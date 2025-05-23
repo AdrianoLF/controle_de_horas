@@ -7,7 +7,7 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def show
-    event.includes(:team, :members)
+    event
   end
 
   def create
@@ -31,7 +31,7 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def event
-    @event ||= Event.find(params[:id])
+    @event ||= Event.includes(:team, :members).find(params[:id])
   end
 
   def render_error

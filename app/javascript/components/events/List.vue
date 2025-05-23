@@ -12,7 +12,11 @@
     @fetch="handleFetch"
   >
     <template #row="{ item: event }">
-      <td>{{ event.title }}</td>
+      <td>
+        <router-link :to="`/events/${event.id}`" class="text-decoration-none">
+          {{ event.title }}
+        </router-link>
+      </td>
       <td>{{ getTeamName(event.team_id) }}</td>
       <td>{{ formatDuration(event.duration_seconds) }}</td>
       <td>
@@ -24,12 +28,6 @@
         </router-link>
       </td>
       <td class="d-flex gap-2">
-        <router-link
-          :to="{ name: 'EventEdit', params: { id: event.id } }"
-          class="btn btn-primary btn-sm"
-        >
-          Editar
-        </router-link>
         <button class="btn btn-danger btn-sm" @click="confirmDelete(event)">
           Excluir
         </button>

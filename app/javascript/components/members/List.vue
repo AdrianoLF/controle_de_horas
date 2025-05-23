@@ -35,7 +35,7 @@
       </td>
       <td class="d-flex gap-2">
         <button class="btn btn-danger btn-sm" @click="deleteRecord(member.id)">
-          Deletar
+          Excluir
         </button>
       </td>
     </template>
@@ -79,14 +79,16 @@ export default {
       });
     },
     async deleteRecord(id) {
-      if (confirm("Tem certeza que deseja deletar este membro?")) {
+      if (
+        confirm("Tem certeza que deseja excluir PERMANENTEMENTE este membro?")
+      ) {
         await handleRequest({
           request: () => deleteMember(id),
           processOnSuccess: () => {
             this.handleFetch({ page: 1 });
           },
-          successMessage: "Membro deletado com sucesso",
-          errorMessage: "Erro ao deletar membro",
+          successMessage: "Membro excluído com sucesso",
+          errorMessage: "Erro ao excluir membro",
           eventBus: this.$eventBus,
           processOnStart: () => {
             this.isLoading = true;
