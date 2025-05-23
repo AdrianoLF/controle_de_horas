@@ -19,12 +19,11 @@
             :key="team.id"
             class="d-flex align-items-center mb-1"
           >
-            <span>{{ team.name }}</span>
             <router-link
               :to="`/teams/${team.id}/members`"
               class="btn btn-outline-primary btn-sm ms-2"
             >
-              Ver Time
+              <span>{{ team.name }}</span>
             </router-link>
           </div>
         </div>
