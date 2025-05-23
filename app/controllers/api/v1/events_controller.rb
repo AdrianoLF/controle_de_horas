@@ -2,12 +2,12 @@ class Api::V1::EventsController < Api::V1::BaseController
   before_action :event, only: %i[destroy update]
 
   def index
-    scope = EventsFinder.new(permitted_params).perform
+    scope = EventsFinder.new(permitted_params).perform.includes(:team, :members)
     @events = paginate(scope:, params: permitted_params)
   end
 
   def show
-    event
+    event.includes(:team, :members)
   end
 
   def create
@@ -37,4 +37,4 @@ class Api::V1::EventsController < Api::V1::BaseController
   def render_error
     render json: { errors: @event.errors.full_messages }, status: :unprocessable_entity
   end
-end 
+end
