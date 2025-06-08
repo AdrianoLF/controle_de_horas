@@ -1,12 +1,12 @@
-Rails.logger.info '🌱 Iniciando criação dos dados de exemplo...'
+puts '🌱 Iniciando criação das seeds...'
 
 User.create!(
-  email: 'admin@controledehoras.com',
-  password: 'Password123!',
+  email: 'john@acme.inc',
+  password: 'Password1!',
   super_admin: true,
-  name: 'Admin Sistema'
+  name: 'John Doe'
 )
-Rails.logger.info '✅ Usuário admin criado'
+puts '✅ Usuário admin criado'
 
 team_dev = Team.create!(
   name: 'Time de Desenvolvimento',
@@ -27,7 +27,7 @@ team_qa = Team.create!(
   name: 'Time de QA',
   description: 'Responsável por testes, qualidade e validação de features'
 )
-Rails.logger.info '✅ Times criados'
+puts '✅ Times criados'
 
 members_data = [
   { name: 'Ana Silva', email: 'ana.silva@empresa.com', role: :leader, teams: [team_dev] },
@@ -57,7 +57,7 @@ members_data.each do |member_info|
     )
   end
 end
-Rails.logger.info '✅ Membros e memberships criados'
+puts '✅ Membros e memberships criados'
 
 events_data = [
   {
@@ -175,7 +175,7 @@ events_data.each do |event_info|
     EventAssignment.create!(event: event, member: member)
   end
 end
-Rails.logger.info '✅ Eventos e assignments criados'
+puts '✅ Eventos e assignments criados'
 
 cross_team_events = [
   {
@@ -208,13 +208,13 @@ cross_team_events.each do |event_info|
     EventAssignment.create!(event: event, member: member)
   end
 end
-Rails.logger.info '✅ Eventos cross-team criados'
+puts '✅ Eventos cross-team criados'
 
-Rails.logger.info "\n📊 RESUMO DOS DADOS CRIADOS:"
-Rails.logger.info "👤 Usuários: #{User.count}"
-Rails.logger.info "👥 Times: #{Team.count}"
-Rails.logger.info "🧑‍💼 Membros: #{Member.count}"
-Rails.logger.info "🔗 Memberships: #{Membership.count}"
-Rails.logger.info "📅 Eventos: #{Event.count}"
-Rails.logger.info "📝 Event Assignments: #{EventAssignment.count}"
-Rails.logger.info "\n✨ Seeds executados com sucesso!"
+puts "\n📊 RESUMO DOS DADOS CRIADOS:"
+puts "👤 Usuários: #{User.count}"
+puts "👥 Times: #{Team.count}"
+puts "🧑‍💼 Membros: #{Member.count}"
+puts "🔗 Memberships: #{Membership.count}"
+puts "📅 Eventos: #{Event.count}"
+puts "📝 Event Assignments: #{EventAssignment.count}"
+puts "\n✨ Seeds executados com sucesso!"

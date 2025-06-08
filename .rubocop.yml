@@ -11,6 +11,10 @@ Metrics/BlockLength:
     - "db/schema.rb"
     - "config/routes.rb"
 
+convention:Rails/Output:
+  Exclude:
+    - "db/seeds.rb"
+
 Style/NumericLiterals:
   Exclude:
     - "db/schema.rb"
