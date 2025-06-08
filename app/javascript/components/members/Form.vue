@@ -20,6 +20,15 @@
               required
             />
           </div>
+          <div>
+            <label for="pix_key">Chave PIX</label>
+            <input
+              id="pix_key"
+              type="text"
+              class="form-control"
+              v-model="formData.pix_key"
+            />
+          </div>
           <div class="d-flex gap-2">
             <button class="btn btn-primary" type="submit">Salvar</button>
             <router-link to="/members" class="btn btn-secondary"
@@ -103,7 +112,7 @@ export default {
 
   data() {
     return {
-      formData: { name: "" },
+      formData: { name: "", pix_key: "" },
       member: null,
       memberships: [],
       isEditing: false,
@@ -136,6 +145,7 @@ export default {
         processOnSuccess: (response) => {
           this.member = response.record;
           this.formData.name = response.record?.name || "";
+          this.formData.pix_key = response.record?.pix_key || "";
           this.memberships = response.memberships.map((membership) => ({
             ...membership,
             team: response.teams.find((team) => team.id === membership.team_id),

@@ -21,13 +21,13 @@ class Api::V1::MembersController < Api::V1::BaseController
 
   def update
     @member.update(permitted_params)
-    @member.save ? render_success : render_error
+    @member.save || render_error
   end
 
   private
 
   def permitted_params
-    params.permit(:name, :all_records, :page)
+    params.permit(:name, :pix_key, :all_records, :page)
   end
 
   def member

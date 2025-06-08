@@ -8,6 +8,7 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  active     :boolean          default(TRUE)
+#  pix_key    :string
 #
 class Member < ApplicationRecord
   has_many :memberships, dependent: :destroy
@@ -15,5 +16,6 @@ class Member < ApplicationRecord
   has_many :event_assignments, dependent: :destroy
   has_many :events, through: :event_assignments
 
-  validates :name, presence: true, uniqueness: true
+  validates :name, presence: true
+  validates :pix_key, uniqueness: true
 end
