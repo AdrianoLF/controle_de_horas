@@ -17,7 +17,7 @@ class EventAssignment < ApplicationRecord
   private
 
   def member_is_in_team
-    errors.add(:member, "não faz parte desta team") unless
+    errors.add(:member, 'não faz parte desse time') unless
       member.teams.exists?(event.team_id)
   end
 end

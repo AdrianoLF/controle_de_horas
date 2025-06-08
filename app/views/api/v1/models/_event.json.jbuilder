@@ -9,3 +9,9 @@ json.updated_at resource.updated_at
 json.team do
   json.partial! 'api/v1/models/team', formats: [:json], resource: resource.team
 end
+
+json.members do
+  json.array! resource.members do |member|
+    json.partial! 'api/v1/models/member', formats: [:json], resource: member
+  end
+end

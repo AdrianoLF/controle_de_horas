@@ -37,4 +37,4 @@ class Api::V1::TeamsController < Api::V1::BaseController
   def render_error
     render json: { errors: @team.errors.full_messages }, status: :unprocessable_entity
   end
-end 
+end

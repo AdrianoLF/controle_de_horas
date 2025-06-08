@@ -21,7 +21,7 @@
       <td>{{ formatDuration(event.duration_seconds) }}</td>
       <td>
         <router-link
-          :to="{ name: 'EventMembers', params: { id: event.id } }"
+          :to="{ name: 'EventEdit', params: { id: event.id } }"
           class="btn btn-info btn-sm"
         >
           {{ event.members?.length || 0 }}

@@ -2,12 +2,11 @@ class EventsFinder
   def initialize(params)
     @params = params
   end
-  
+
   def perform
     events = base_scope
     events = filter_by_title(events)
-    events = order_by_title(events)
-    events
+    order_by_created_at(events)
   end
 
   private
@@ -19,10 +18,10 @@ class EventsFinder
   def filter_by_title(scope)
     return scope if @params[:title].blank?
 
-    scope.where("title ILIKE ?", "%#{@params[:title]}%")
+    scope.where('title ILIKE ?', "%#{@params[:title]}%")
   end
 
-  def order_by_title(scope)
-    scope.order(title: :asc)
+  def order_by_created_at(scope)
+    scope.order(created_at: :desc)
   end
 end

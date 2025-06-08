@@ -8,7 +8,6 @@ import TeamForm from "../components/teams/Form.vue";
 import TeamMembers from "../components/teams/Members.vue";
 import EventsList from "../components/events/List.vue";
 import EventForm from "../components/events/Form.vue";
-import EventMembers from "../components/events/Members.vue";
 import UserProfile from "../components/users/Page.vue";
 import store from "@/store";
 
@@ -74,12 +73,6 @@ const routes = [
     path: "/events/:id",
     name: "EventEdit",
     component: EventForm,
-    props: true,
-  },
-  {
-    path: "/events/:id/members",
-    name: "EventMembers",
-    component: EventMembers,
     props: true,
   },
 ];

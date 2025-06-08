@@ -16,23 +16,12 @@ Rails.application.routes.draw do
       end
 
       resources :members, only: %i[index update create destroy show]
-      
+
       resources :teams, only: %i[index update create destroy show] do
         resources :memberships, only: %i[create destroy]
       end
-      
-      resources :inss_calculations, only: [] do
-        collection do
-          post :discount
-        end
-      end
 
       resources :events, only: %i[index update create destroy show]
-      resources :event_assignments, only: [:create] do
-        collection do
-          delete :destroy_relationship
-        end
-      end
 
       # SUPER ADMIN SECTION
       namespace :super_admin do
