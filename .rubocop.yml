@@ -9,6 +9,7 @@ Metrics/MethodLength:
 Metrics/BlockLength:
   Exclude:
     - "db/schema.rb"
+    - "config/routes.rb"
 
 Style/NumericLiterals:
   Exclude:

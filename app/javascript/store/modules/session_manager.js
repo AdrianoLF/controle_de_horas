@@ -27,19 +27,6 @@ const getters = {
   },
 };
 const actions = {
-  registerUser({ commit }, payload) {
-    return new Promise((resolve, reject) => {
-      axios
-        .post(`${BASE_URL}users`, payload)
-        .then((response) => {
-          commit("setUserInfo", response);
-          resolve(response);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  },
   async loginUser({ commit }, payload) {
     commit("resetUserInfo");
 

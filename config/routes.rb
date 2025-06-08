@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
   devise_for :users,
              controllers: {
-               sessions: 'users/sessions',
-               registrations: 'users/registrations'
-             }
+               sessions: 'users/sessions'
+             },
+             skip: [:registrations]
 
   root 'pages#home'
   namespace :api, defaults: { format: 'json' } do
