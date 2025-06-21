@@ -36,6 +36,49 @@
                 />
               </div>
 
+              <hr class="my-4" />
+              <h5 class="mb-3">Alterar Senha</h5>
+              <p class="text-muted small">
+                Deixe os campos de senha em branco para não a alterar.
+              </p>
+
+              <div class="mb-3">
+                <label for="current_password" class="form-label"
+                  >Senha Atual</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="current_password"
+                  v-model="editedUser.current_password"
+                  placeholder="Informe sua senha atual para trocar"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label">Nova Senha</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  v-model="editedUser.password"
+                  placeholder="Mínimo de 6 caracteres"
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="password_confirmation" class="form-label"
+                  >Confirmar Nova Senha</label
+                >
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password_confirmation"
+                  v-model="editedUser.password_confirmation"
+                  placeholder="Repita a nova senha"
+                />
+              </div>
+
               <div class="d-flex justify-content-end">
                 <button
                   type="button"
@@ -115,6 +158,9 @@ export default {
       editedUser: {
         name: "",
         email: "",
+        current_password: "",
+        password: "",
+        password_confirmation: "",
       },
     };
   },
@@ -142,19 +188,35 @@ export default {
       this.editedUser = {
         name: this.userProfile.name,
         email: this.userProfile.email,
+        current_password: "",
+        password: "",
+        password_confirmation: "",
       };
       this.editMode = true;
     },
 
     cancelEdit() {
       this.editMode = false;
-      this.editedUser = {
-        name: this.userProfile.name,
-        email: this.userProfile.email,
-      };
     },
 
     async updateProfile() {
+      if (this.editedUser.password !== this.editedUser.password_confirmation) {
+        this.$eventBus.emit("showAlert", {
+          type: "error",
+          message: "A nova senha e a confirmação não correspondem.",
+        });
+        return;
+      }
+
+      if (this.editedUser.password && !this.editedUser.current_password) {
+        this.$eventBus.emit("showAlert", {
+          type: "error",
+          message:
+            "Por favor, informe sua senha atual para definir uma nova senha.",
+        });
+        return;
+      }
+
       await handleRequest({
         request: () => updateUserProfile({ user: this.editedUser }),
         processOnSuccess: (response) => {
