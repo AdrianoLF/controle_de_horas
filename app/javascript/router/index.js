@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "../components/reports/Reports.vue";
 import Login from "../components/session/Login.vue";
 import MembersList from "../components/members/List.vue";
-import MemberForm from "../components/members/Form.vue";
 import TeamsList from "../components/teams/List.vue";
 import TeamForm from "../components/teams/Form.vue";
 import TeamMembers from "../components/teams/Members.vue";
@@ -22,18 +21,6 @@ const routes = [
     name: "MembersList",
     component: MembersList,
   },
-  {
-    path: "/members/new",
-    name: "MemberCreate",
-    component: MemberForm,
-  },
-  {
-    path: "/members/:id",
-    name: "MemberEdit",
-    component: MemberForm,
-    props: true,
-  },
-
   // TIMES
   {
     path: "/teams",

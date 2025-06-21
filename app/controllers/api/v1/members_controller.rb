@@ -1,5 +1,5 @@
 class Api::V1::MembersController < Api::V1::BaseController
-  before_action :member, only: %i[destroy update]
+  before_action :member, only: %i[update show]
 
   def index
     scope = MembersFinder.new(permitted_params).perform.includes(:teams)
@@ -7,7 +7,7 @@ class Api::V1::MembersController < Api::V1::BaseController
   end
 
   def show
-    member
+    @member
   end
 
   def create
@@ -15,19 +15,14 @@ class Api::V1::MembersController < Api::V1::BaseController
     @member.save || render_error
   end
 
-  def destroy
-    @member.destroy! and head :ok
-  end
-
   def update
-    @member.update(permitted_params)
-    @member.save || render_error
+    @member.update(permitted_params) || render_error
   end
 
   private
 
   def permitted_params
-    params.permit(:name, :pix_key, :all_records, :page)
+    params.permit(:name, :pix_key, :all_records, :page, :active, :sort_by, :sort_order, team_ids: [])
   end
 
   def member

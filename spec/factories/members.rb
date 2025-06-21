@@ -11,8 +11,11 @@
 #  pix_key     :string
 #  disabled_at :datetime
 #
-require 'rails_helper'
-
-RSpec.describe Member, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+FactoryBot.define do
+  factory :member do
+    name { Faker::Name.name }
+    email { Faker::Internet.email }
+    pix_key { Faker::Alphanumeric.alphanumeric(number: 10) }
+    active { true }
+  end
 end

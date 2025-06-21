@@ -15,7 +15,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :members, only: %i[index update create destroy show]
+      resources :members, only: %i[index update create show]
 
       resources :teams, only: %i[index update create destroy show] do
         resources :memberships, only: %i[create destroy]

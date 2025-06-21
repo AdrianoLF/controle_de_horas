@@ -44,10 +44,16 @@ pre-commit:
   commands:
     stylelint:
       tags: frontend style
-      glob: "*.{js}"
+      glob: "*.js"
       run: npx eslint {staged_files}
+
     rubocop:
       tags: backend style
-      glob: "*.{rb}"
+      glob: "*.rb"
       exclude: "application.rb|routes.rb"
-      run: bundle exec rubocop {staged_files}
+      run: >
+        bash -lc '
+          source "$HOME/.rvm/scripts/rvm"        # carrega o RVM
+          rvm use 3.2.2                          # força a versão correta
+          bundle exec rubocop {staged_files}
+        '

@@ -2,13 +2,14 @@
 #
 # Table name: members
 #
-#  id         :bigint           not null, primary key
-#  name       :string
-#  email      :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  active     :boolean          default(TRUE)
-#  pix_key    :string
+#  id          :bigint           not null, primary key
+#  name        :string
+#  email       :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  active      :boolean          default(TRUE)
+#  pix_key     :string
+#  disabled_at :datetime
 #
 class Member < ApplicationRecord
   has_many :memberships, dependent: :destroy
@@ -18,4 +19,12 @@ class Member < ApplicationRecord
 
   validates :name, presence: true
   validates :pix_key, uniqueness: true
+
+  before_save :update_disabled_at, if: :active_changed?
+
+  private
+
+  def update_disabled_at
+    self.disabled_at = active? ? nil : Time.current
+  end
 end
