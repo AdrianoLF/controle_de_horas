@@ -3,6 +3,8 @@ json.title resource.title
 json.description resource.description
 json.duration_seconds resource.duration_seconds
 json.team_id resource.team_id
+json.members_count resource.members.size
+json.occurred_at resource.occurred_at
 json.created_at resource.created_at
 json.updated_at resource.updated_at
 

@@ -1,33 +1,58 @@
 <template>
   <BaseList
+    ref="baseList"
     title="Lista de Eventos"
     search-placeholder="Pesquisar por Nome"
     add-button-text="Novo Evento"
-    new-item-route="/events/new"
-    :headers="['Nome', 'Time', 'Duração', 'Membros', 'Ações']"
+    :headers="headers"
     :items="events"
     :total-pages="totalPages"
     :is-loading="isLoading"
-    :fetch-function="handleFetch"
+    :has-filters="true"
+    :active-filters-count="activeFiltersCount"
     @fetch="handleFetch"
+    @add-new="openCreateModal"
+    @toggle-filters="showFiltersModal = true"
   >
+    <template #active-filters v-if="hasAnyFilters && activeFiltersText">
+      <div class="d-flex align-items-center justify-content-between">
+        <span>
+          <i class="filter-indicator"></i>
+          {{ activeFiltersText }}
+        </span>
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          @click="clearAllFilters"
+        >
+          Limpar Filtros
+        </button>
+      </div>
+    </template>
+
     <template #row="{ item: event }">
       <td>
-        <router-link :to="`/events/${event.id}`" class="text-decoration-none">
+        <button
+          @click="openEditModal(event.id)"
+          class="btn btn-link text-decoration-none p-0 text-start"
+        >
           {{ event.title }}
-        </router-link>
+        </button>
       </td>
-      <td>{{ getTeamName(event.team_id) }}</td>
+      <td>{{ formatDate(event.occurred_at) }}</td>
+      <td>{{ event.team?.name || "-" }}</td>
       <td>{{ formatDuration(event.duration_seconds) }}</td>
       <td>
-        <router-link
-          :to="{ name: 'EventEdit', params: { id: event.id } }"
-          class="btn btn-info btn-sm"
-        >
-          {{ event.members?.length || 0 }}
-        </router-link>
+        <button @click="openEditModal(event.id)" class="btn btn-info btn-sm">
+          {{ event.members_count || 0 }}
+        </button>
       </td>
       <td class="d-flex gap-2">
+        <button
+          class="btn btn-outline-secondary btn-sm"
+          @click="openEditModal(event.id)"
+        >
+          Editar
+        </button>
         <button class="btn btn-danger btn-sm" @click="confirmDelete(event)">
           Excluir
         </button>
@@ -35,64 +60,140 @@
     </template>
   </BaseList>
 
-  <!-- Modal de confirmação de exclusão -->
-  <div
-    v-if="deleteModal"
-    class="fixed inset-0 z-10 flex items-center justify-center"
+  <EventModal
+    :show="showModal"
+    :event-id="selectedEventId"
+    @close="closeModal"
+    @saved="handleEventSaved"
+  />
+
+  <FiltersModal
+    :show="showFiltersModal"
+    @close="showFiltersModal = false"
+    @apply="applyFilters"
+    @clear="clearAllFilters"
   >
-    <div class="absolute inset-0 bg-black opacity-50"></div>
-    <div class="bg-white p-6 rounded-lg z-20 max-w-md w-full">
-      <h2 class="text-xl font-bold mb-4">Confirmar exclusão</h2>
-      <p class="mb-6">
-        Tem certeza que deseja excluir o evento "{{ eventToDelete?.title }}"?
-      </p>
-      <div class="flex justify-end space-x-3">
-        <button
-          @click="deleteModal = false"
-          class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-        >
-          Cancelar
-        </button>
-        <button
-          @click="deleteEvent"
-          class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
-        >
-          Excluir
-        </button>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Data Inicial</label>
+        <input type="date" class="form-control" v-model="filterDateStart" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Data Final</label>
+        <input type="date" class="form-control" v-model="filterDateEnd" />
+      </div>
+
+      <div class="col-12">
+        <label class="form-label">Times</label>
+        <select class="form-select" v-model="selectedTeamIds" multiple size="8">
+          <option
+            v-for="team in availableTeams"
+            :key="team.id"
+            :value="team.id"
+          >
+            {{ team.name }}
+          </option>
+        </select>
+        <small class="form-text text-muted">
+          Segure Ctrl/Cmd para selecionar múltiplos.
+        </small>
       </div>
     </div>
-  </div>
+  </FiltersModal>
 </template>
 
 <script>
 import { handleRequest } from "@/helper/request";
-import { getEvents, deleteEvent as deleteEventApi } from "@/api/events";
+import { getEvents, deleteEvent } from "@/api/events";
 import { getTeams } from "@/api/teams";
 import BaseList from "../common/BaseList.vue";
+import EventModal from "./EventModal.vue";
+import FiltersModal from "../common/FiltersModal.vue";
 
 export default {
   name: "EventsList",
 
   components: {
     BaseList,
+    EventModal,
+    FiltersModal,
   },
 
   data() {
     return {
+      // ===== DADOS DA LISTA =====
       events: [],
-      teams: [],
-      isLoading: true,
       totalPages: 1,
-      deleteModal: false,
-      eventToDelete: null,
+      isLoading: true,
+      headers: [
+        { label: "Nome", key: "title", sortable: true },
+        { label: "Data", key: "occurred_at", sortable: true },
+        { label: "Time", key: "team_name", sortable: true },
+        { label: "Duração", key: "duration_seconds", sortable: true },
+        { label: "Membros", key: "members_count", sortable: true },
+        { label: "Ações", key: "actions", sortable: false },
+      ],
+
+      // ===== MODAIS =====
+      showModal: false,
+      showFiltersModal: false,
+      selectedEventId: null,
+
+      // ===== FILTROS =====
+      selectedTeamIds: [],
+      availableTeams: [],
+      filterDateStart: "",
+      filterDateEnd: "",
     };
   },
 
+  computed: {
+    activeFiltersCount() {
+      let count = 0;
+      if (this.selectedTeamIds.length > 0) count += 1;
+      if (this.filterDateStart || this.filterDateEnd) count += 1;
+      return count;
+    },
+    hasAnyFilters() {
+      return (
+        this.selectedTeamIds.length > 0 ||
+        this.filterDateStart !== "" ||
+        this.filterDateEnd !== ""
+      );
+    },
+    activeFiltersText() {
+      if (!this.hasAnyFilters) return "Exibindo todos os eventos.";
+
+      const parts = [];
+
+      if (this.selectedTeamIds.length > 0) {
+        const teamNames = this.selectedTeamIds
+          .map((id) => this.availableTeams.find((team) => team.id === id)?.name)
+          .filter(Boolean)
+          .join(", ");
+        parts.push(`Times: ${teamNames}`);
+      }
+
+      if (this.filterDateStart || this.filterDateEnd) {
+        const start = this.filterDateStart
+          ? new Date(this.filterDateStart).toLocaleDateString("pt-BR")
+          : "";
+        const end = this.filterDateEnd
+          ? new Date(this.filterDateEnd).toLocaleDateString("pt-BR")
+          : "";
+        parts.push(`Período: ${start || "…"} - ${end || "…"}`);
+      }
+
+      return parts.join(" • ");
+    },
+  },
+
   mounted() {
-    this.loadTeams();
+    this.loadAvailableTeams();
   },
 
   methods: {
+    // ===== MÉTODOS PRINCIPAIS =====
     async handleFetch(params) {
       await handleRequest({
         request: () => getEvents(params),
@@ -102,38 +203,29 @@ export default {
         },
         errorMessage: "Erro ao carregar eventos",
         eventBus: this.$eventBus,
-        processOnStart: () => {
-          this.isLoading = true;
-        },
-        processOnFinally: () => {
-          this.isLoading = false;
-        },
+        processOnStart: () => (this.isLoading = true),
+        processOnFinally: () => (this.isLoading = false),
       });
     },
 
-    async loadTeams() {
+    async confirmDelete(event) {
+      if (
+        !confirm(`Tem certeza que deseja excluir o evento "${event.title}"?`)
+      ) {
+        return;
+      }
+
       await handleRequest({
-        request: () => getTeams({ all_records: true }),
-        processOnSuccess: (response) => {
-          this.teams = response.records;
-        },
-        errorMessage: "Erro ao carregar times",
+        request: () => deleteEvent(event.id),
+        processOnSuccess: () => this.$refs.baseList?.fetchData(),
+        successMessage: "Evento excluído com sucesso",
+        errorMessage: "Erro ao excluir evento",
         eventBus: this.$eventBus,
-        processOnStart: () => {
-          this.isLoading = true;
-        },
-        processOnFinally: () => {
-          this.isLoading = false;
-        },
       });
-    },
-
-    getTeamName(teamId) {
-      const team = this.teams.find((t) => t.id === teamId);
-      return team ? team.name : "-";
     },
 
     formatDuration(seconds) {
+      if (!seconds) return "-";
       const hours = Math.floor(seconds / 3600);
       const minutes = Math.floor((seconds % 3600) / 60);
 
@@ -143,30 +235,93 @@ export default {
       return `${minutes}min`;
     },
 
-    confirmDelete(event) {
-      this.eventToDelete = event;
-      this.deleteModal = true;
+    formatDate(dateString) {
+      if (!dateString) return "-";
+      const date = new Date(dateString);
+      // Adjust for timezone offset to prevent day-before issues
+      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+      return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString(
+        "pt-BR",
+        {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }
+      );
     },
 
-    async deleteEvent() {
+    // ===== MODAIS =====
+    openCreateModal() {
+      this.selectedEventId = null;
+      this.showModal = true;
+    },
+
+    openEditModal(eventId) {
+      this.selectedEventId = eventId;
+      this.showModal = true;
+    },
+
+    closeModal() {
+      this.showModal = false;
+      this.selectedEventId = null;
+    },
+
+    handleEventSaved() {
+      this.$refs.baseList?.fetchData();
+    },
+
+    // ===== FILTROS =====
+    applyFilters() {
+      const filters = {};
+
+      if (this.selectedTeamIds.length > 0) {
+        filters.team_ids = this.selectedTeamIds;
+      }
+
+      if (this.filterDateStart) {
+        filters.occurred_from = this.filterDateStart;
+      }
+      if (this.filterDateEnd) {
+        filters.occurred_to = this.filterDateEnd;
+      }
+
+      this.$refs.baseList?.applyFilters(filters);
+    },
+
+    clearAllFilters() {
+      this.selectedTeamIds = [];
+      this.filterDateStart = "";
+      this.filterDateEnd = "";
+      this.$refs.baseList?.resetToInitialState();
+    },
+
+    async loadAvailableTeams() {
       await handleRequest({
-        request: () => deleteEventApi(this.eventToDelete.id),
-        processOnSuccess: () => {
-          this.handleFetch();
-          this.deleteModal = false;
-          this.eventToDelete = null;
+        request: () => getTeams({ all_records: true }),
+        processOnSuccess: (response) => {
+          this.availableTeams = response.records;
         },
-        successMessage: "Evento excluído com sucesso",
-        errorMessage: "Erro ao excluir evento",
+        errorMessage: "Erro ao carregar times",
         eventBus: this.$eventBus,
-        processOnStart: () => {
-          this.isLoading = true;
-        },
-        processOnFinally: () => {
-          this.isLoading = false;
-        },
       });
     },
   },
 };
 </script>
+
+<style scoped>
+.btn-link.text-start {
+  color: #0d6efd !important;
+  font-weight: 500;
+}
+
+.btn-link.text-start:hover {
+  color: #0a58ca !important;
+  text-decoration: underline !important;
+}
+
+.filter-indicator::before {
+  content: "🔍";
+  margin-right: 0.5rem;
+}
+</style>

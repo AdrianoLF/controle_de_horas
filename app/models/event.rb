@@ -9,6 +9,7 @@
 #  team_id          :bigint           not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  occurred_at      :datetime
 #
 class Event < ApplicationRecord
   belongs_to :team
@@ -18,4 +19,5 @@ class Event < ApplicationRecord
   validates :duration_seconds, numericality: { greater_than: 0 }
   validates :title, presence: true
   validates :team_id, presence: true
+  validates :occurred_at, presence: true
 end

@@ -3,7 +3,7 @@ class Api::V1::EventsController < Api::V1::BaseController
   before_action :check_duration, only: %i[create update]
 
   def index
-    scope = EventsFinder.new(permitted_params).perform.includes(:team, :members)
+    scope = EventsFinder.new(permitted_params).perform
     @events = paginate(scope:, params: permitted_params)
   end
 
@@ -37,7 +37,21 @@ class Api::V1::EventsController < Api::V1::BaseController
   private
 
   def permitted_params
-    params.permit(:duration_seconds, :team_id, :title, :description, :page, member_ids: [])
+    params.permit(
+      :duration_seconds,
+      :team_id,
+      :title,
+      :description,
+      :page,
+      :sort_by,
+      :sort_order,
+      :search,
+      :occurred_at,
+      :occurred_from,
+      :occurred_to,
+      member_ids: [],
+      team_ids: []
+    )
   end
 
   def event

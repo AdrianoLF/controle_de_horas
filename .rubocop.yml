@@ -23,6 +23,18 @@ Style/WordArray:
   Exclude:
     - "db/schema.rb"
 
+Metrics/AbcSize:
+  Exclude:
+    - "app/finders/events_finder.rb"
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - "app/finders/events_finder.rb"
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - "app/finders/events_finder.rb"
+
 Style/Documentation:
   Enabled: false
 

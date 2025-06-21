@@ -65,98 +65,112 @@ events_data = [
     title: 'Daily Standup',
     description: 'Reunião diária para alinhar o progresso das tarefas e identificar bloqueios',
     duration_seconds: 15.minutes.to_i,
-    member_count: 4
+    member_count: 4,
+    occurred_at: 1.day.ago
   },
   {
     team: team_dev,
     title: 'Code Review - Feature Login',
     description: 'Revisão do código da nova funcionalidade de autenticação',
     duration_seconds: 1.hour.to_i,
-    member_count: 3
+    member_count: 3,
+    occurred_at: 2.days.ago
   },
   {
     team: team_dev,
     title: 'Sprint Planning',
     description: 'Planejamento das tarefas para o próximo sprint de 2 semanas',
     duration_seconds: 2.hours.to_i,
-    member_count: 4
+    member_count: 4,
+    occurred_at: 3.days.ago
   },
   {
     team: team_dev,
     title: 'Arquitetura - Microserviços',
     description: 'Discussão sobre migração para arquitetura de microserviços',
     duration_seconds: 3.hours.to_i,
-    member_count: 3
+    member_count: 3,
+    occurred_at: 4.days.ago
   },
   {
     team: team_dev,
     title: 'Refatoração Database',
     description: 'Sessão de refatoração do schema do banco de dados',
     duration_seconds: 4.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 5.days.ago
   },
   {
     team: team_design,
     title: 'Workshop de Design System',
     description: 'Criação e padronização do design system da empresa',
     duration_seconds: 4.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 6.days.ago
   },
   {
     team: team_design,
     title: 'Prototipagem Mobile',
     description: 'Criação de protótipos para a versão mobile da aplicação',
     duration_seconds: 3.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 7.days.ago
   },
   {
     team: team_design,
     title: 'User Research',
     description: 'Pesquisa com usuários para validar novas funcionalidades',
     duration_seconds: 2.hours.to_i,
-    member_count: 1
+    member_count: 1,
+    occurred_at: 8.days.ago
   },
   {
     team: team_product,
     title: 'Product Discovery',
     description: 'Sessão de descoberta de novas oportunidades de produto',
     duration_seconds: 3.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 9.days.ago
   },
   {
     team: team_product,
     title: 'Análise de Métricas',
     description: 'Análise das métricas de uso e performance do produto',
     duration_seconds: 1.hour.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 10.days.ago
   },
   {
     team: team_product,
     title: 'Roadmap Review',
     description: 'Revisão e priorização do roadmap trimestral',
     duration_seconds: 2.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 11.days.ago
   },
   {
     team: team_qa,
     title: 'Testes de Regressão',
     description: 'Execução de testes de regressão após deploy',
     duration_seconds: 2.hours.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 12.days.ago
   },
   {
     team: team_qa,
     title: 'Automação de Testes',
     description: 'Desenvolvimento de testes automatizados E2E',
     duration_seconds: 4.hours.to_i,
-    member_count: 1
+    member_count: 1,
+    occurred_at: 13.days.ago
   },
   {
     team: team_qa,
     title: 'Bug Bash Session',
     description: 'Sessão colaborativa de identificação de bugs',
     duration_seconds: 1.hour.to_i,
-    member_count: 2
+    member_count: 2,
+    occurred_at: 14.days.ago
   }
 ]
 
@@ -165,7 +179,8 @@ events_data.each do |event_info|
     team: event_info[:team],
     title: event_info[:title],
     description: event_info[:description],
-    duration_seconds: event_info[:duration_seconds]
+    duration_seconds: event_info[:duration_seconds],
+    occurred_at: event_info[:occurred_at]
   )
 
   available_members = event_info[:team].members.to_a
@@ -183,14 +198,16 @@ cross_team_events = [
     title: 'Alinhamento Dev x Design',
     description: 'Reunião de alinhamento entre desenvolvimento e design sobre novas features',
     duration_seconds: 1.hour.to_i,
-    custom_members: [team_dev.members.first, team_design.members.first]
+    custom_members: [team_dev.members.first, team_design.members.first],
+    occurred_at: 15.days.ago
   },
   {
     team: team_product,
     title: 'All Hands Meeting',
     description: 'Reunião geral com todos os times para alinhamento estratégico',
     duration_seconds: 1.hour.to_i,
-    custom_members: Member.joins(:memberships).where(memberships: { role: :leader }).distinct
+    custom_members: Member.joins(:memberships).where(memberships: { role: :leader }).distinct,
+    occurred_at: 16.days.ago
   }
 ]
 
@@ -199,7 +216,8 @@ cross_team_events.each do |event_info|
     team: event_info[:team],
     title: event_info[:title],
     description: event_info[:description],
-    duration_seconds: event_info[:duration_seconds]
+    duration_seconds: event_info[:duration_seconds],
+    occurred_at: event_info[:occurred_at]
   )
 
   event_info[:custom_members].each do |member|

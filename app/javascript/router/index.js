@@ -4,7 +4,6 @@ import Login from "../components/session/Login.vue";
 import MembersList from "../components/members/List.vue";
 import TeamsList from "../components/teams/List.vue";
 import EventsList from "../components/events/List.vue";
-import EventForm from "../components/events/Form.vue";
 import UserProfile from "../components/users/Page.vue";
 import store from "@/store";
 
@@ -31,17 +30,6 @@ const routes = [
     path: "/events",
     name: "EventsList",
     component: EventsList,
-  },
-  {
-    path: "/events/new",
-    name: "EventCreate",
-    component: EventForm,
-  },
-  {
-    path: "/events/:id",
-    name: "EventEdit",
-    component: EventForm,
-    props: true,
   },
 ];
 
