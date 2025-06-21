@@ -35,6 +35,12 @@ Style/FrozenStringLiteralComment:
 RSpec/MultipleExpectations:
   Enabled: false
 
+RSpec/IndexedLet:
+  Enabled: false
+
+RSpec/LetSetup:
+  Enabled: false
+
 RSpec/ExampleLength:
   Max: 25
 

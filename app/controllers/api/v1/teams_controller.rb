@@ -27,7 +27,7 @@ class Api::V1::TeamsController < Api::V1::BaseController
   private
 
   def permitted_params
-    params.permit(:name, :all_records, :page)
+    params.permit(:name, :all_records, :page, :sort_by, :sort_order)
   end
 
   def team
