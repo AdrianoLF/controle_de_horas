@@ -46,16 +46,18 @@
           {{ event.members_count || 0 }}
         </button>
       </td>
-      <td class="d-flex gap-2">
-        <button
-          class="btn btn-outline-secondary btn-sm"
-          @click="openEditModal(event.id)"
-        >
-          Editar
-        </button>
-        <button class="btn btn-danger btn-sm" @click="confirmDelete(event)">
-          Excluir
-        </button>
+      <td>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            @click="openEditModal(event.id)"
+          >
+            Editar
+          </button>
+          <button class="btn btn-danger btn-sm" @click="confirmDelete(event)">
+            Excluir
+          </button>
+        </div>
       </td>
     </template>
   </BaseList>
