@@ -77,7 +77,7 @@
 
 <script>
 import { handleRequest } from "@/helper/request";
-import { getMember, createMember, editMember } from "@/api/members";
+import { getMember, createMember, editMember } from "@/api/superadmin/members";
 import BaseModal from "../common/BaseModal.vue";
 
 export default {

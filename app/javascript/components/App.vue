@@ -52,7 +52,7 @@
                 Relatórios
               </router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="isSuperAdmin">
               <router-link to="/members" class="nav-link" active-class="active"
                 >Membros</router-link
               >
@@ -107,7 +107,7 @@ export default {
     AlertBox,
   },
   computed: {
-    ...mapGetters("sessionManager", ["isLoggedIn"]),
+    ...mapGetters("sessionManager", ["isLoggedIn", "isSuperAdmin"]),
     unifespLogoUrl() {
       return unifespLogo;
     },

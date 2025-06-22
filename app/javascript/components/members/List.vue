@@ -71,12 +71,12 @@
             :key="team.id"
             class="d-flex align-items-center mb-1"
           >
-            <router-link
-              :to="`/teams/${team.id}/members`"
+            <button
+              @click="openTeamModal(team.id)"
               class="btn btn-outline-primary btn-sm ms-2"
             >
-              <span>{{ team.name }}</span>
-            </router-link>
+              {{ team.name }}
+            </button>
           </div>
         </div>
         <span v-else>Nenhum time</span>
@@ -105,6 +105,14 @@
     :member-id="selectedMemberId"
     @close="closeModal"
     @saved="handleMemberSaved"
+  />
+
+  <TeamModal
+    :show="showTeamModal"
+    :team-id="selectedTeamId"
+    :all-members="allMembers"
+    @close="closeTeamModal"
+    @saved="handleTeamSaved"
   />
 
   <FiltersModal
@@ -143,11 +151,12 @@
 
 <script>
 import { handleRequest } from "@/helper/request";
-import { getMembers, editMember } from "@/api/members";
+import { getMembers, editMember } from "@/api/superadmin/members";
 import { getTeams } from "@/api/teams";
 import BaseList from "../common/BaseList.vue";
 import MemberModal from "./MemberModal.vue";
 import FiltersModal from "../common/FiltersModal.vue";
+import TeamModal from "../teams/TeamModal.vue";
 
 export default {
   name: "MembersList",
@@ -155,6 +164,7 @@ export default {
     BaseList,
     MemberModal,
     FiltersModal,
+    TeamModal,
   },
   data() {
     return {
@@ -172,6 +182,9 @@ export default {
       showModal: false,
       showFiltersModal: false,
       selectedMemberId: null,
+      showTeamModal: false,
+      selectedTeamId: null,
+      allMembers: [],
 
       // ===== FILTROS =====
       filterActive: true, // Padrão: apenas membros ativos
@@ -329,6 +342,35 @@ export default {
         errorMessage: "Erro ao carregar times",
         eventBus: this.$eventBus,
       });
+    },
+
+    openTeamModal(teamId) {
+      this.ensureAllMembersLoaded();
+      this.selectedTeamId = teamId;
+      this.showTeamModal = true;
+    },
+
+    async ensureAllMembersLoaded() {
+      if (this.allMembers.length === 0) {
+        await handleRequest({
+          request: () => getMembers({ all_records: true }),
+          processOnSuccess: (response) => {
+            this.allMembers = response.records || [];
+          },
+          errorMessage: "Erro ao buscar membros",
+          eventBus: this.$eventBus,
+        });
+      }
+    },
+
+    closeTeamModal() {
+      this.showTeamModal = false;
+      this.selectedTeamId = null;
+    },
+
+    handleTeamSaved() {
+      // Mantém os filtros atuais após salvar
+      this.$refs.baseList?.fetchData();
     },
   },
 };

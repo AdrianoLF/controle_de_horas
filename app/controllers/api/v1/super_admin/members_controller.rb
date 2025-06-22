@@ -1,5 +1,5 @@
-class Api::V1::MembersController < Api::V1::BaseController
-  before_action :member, only: %i[show]
+class Api::V1::SuperAdmin::MembersController < Api::V1::SuperAdmin::BaseController
+  before_action :member, only: %i[update show]
 
   def index
     scope = MembersFinder.new(permitted_params).perform.includes(:teams)
@@ -10,6 +10,15 @@ class Api::V1::MembersController < Api::V1::BaseController
     @member
   end
 
+  def create
+    @member = Member.new(permitted_params)
+    @member.save || render_error
+  end
+
+  def update
+    @member.update(permitted_params) || render_error
+  end
+
   private
 
   def permitted_params
@@ -18,5 +27,9 @@ class Api::V1::MembersController < Api::V1::BaseController
 
   def member
     @member ||= Member.includes(:memberships, :teams).find(params[:id])
+  end
+
+  def render_error
+    render json: { errors: @member.errors.full_messages }, status: :unprocessable_entity
   end
 end

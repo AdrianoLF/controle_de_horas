@@ -17,6 +17,7 @@ const routes = [
     path: "/members",
     name: "MembersList",
     component: MembersList,
+    meta: { requiresSuperAdmin: true },
   },
   // TIMES
   {
@@ -42,7 +43,17 @@ router.beforeEach((to, from, next) => {
   if (!store.getters["sessionManager/isLoggedIn"] && to.name !== "Login") {
     next({ name: "Login" });
   } else {
-    next();
+    // Redireciona usuários não-super-admin da Home para Eventos
+    if (to.name === "Home" && !store.getters["sessionManager/isSuperAdmin"]) {
+      next({ name: "EventsList" });
+    } else if (
+      to.meta.requiresSuperAdmin &&
+      !store.getters["sessionManager/isSuperAdmin"]
+    ) {
+      next({ name: "Home" });
+    } else {
+      next();
+    }
   }
 });
 

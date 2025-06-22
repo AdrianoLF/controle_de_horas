@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe 'Members API', type: :request do
-  let!(:user) { create(:user) }
+RSpec.describe 'Members API (Read-only)', type: :request do
+  let!(:user) { create(:user, super_admin: false) }
   let!(:active_member) { create(:member, name: 'John Doe', active: true) }
   let!(:inactive_member) { create(:member, name: 'Jane Smith', active: false) }
   let(:auth_header) { auth_headers_for(user) }
@@ -12,13 +12,14 @@ RSpec.describe 'Members API', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    context 'with authentication' do
-      it 'filters by active status' do
-        # Default: sem parâmetros, mostra todos
+    context 'with authentication (regular user)' do
+      it 'returns all members by default' do
         get '/api/v1/members', headers: auth_header
         member_names = response.parsed_body['records'].map { |m| m['name'] }
         expect(member_names).to include('John Doe', 'Jane Smith')
+      end
 
+      it 'filters by active status' do
         # Apenas ativos
         get '/api/v1/members?active=true', headers: auth_header
         member_names = response.parsed_body['records'].map { |m| m['name'] }
@@ -88,39 +89,47 @@ RSpec.describe 'Members API', type: :request do
     end
   end
 
-  describe 'PATCH /api/v1/members/:id' do
+  describe 'GET /api/v1/members/:id' do
     it 'requires authentication' do
-      patch "/api/v1/members/#{active_member.id}"
+      get "/api/v1/members/#{active_member.id}"
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'toggles member active status' do
-      # Desativa membro ativo
-      patch "/api/v1/members/#{active_member.id}",
-            params: { active: false },
-            headers: auth_header
-
-      expect(response).to have_http_status(:success)
-      expect(active_member.reload.active).to be false
-
-      # Reativa membro inativo
-      patch "/api/v1/members/#{active_member.id}",
-            params: { active: true },
-            headers: auth_header
-
-      expect(response).to have_http_status(:success)
-      expect(active_member.reload.active).to be true
+    it 'returns member details' do
+      get "/api/v1/members/#{active_member.id}", headers: auth_header
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['record']['name']).to eq('John Doe')
     end
 
-    it 'updates member data' do
+    it 'returns 404 for non-existent member' do
+      get '/api/v1/members/0', headers: auth_header
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  # Testes para verificar que operações de escrita NÃO estão disponíveis
+  describe 'Write operations (should not be available)' do
+    it 'does not allow PATCH requests' do
       patch "/api/v1/members/#{active_member.id}",
-            params: { name: 'John Updated', pix_key: '123456789' },
+            params: { name: 'Updated Name' },
             headers: auth_header
 
-      expect(response).to have_http_status(:success)
-      active_member.reload
-      expect(active_member.name).to eq('John Updated')
-      expect(active_member.pix_key).to eq('123456789')
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'does not allow POST requests' do
+      post '/api/v1/members',
+           params: { name: 'New Member' },
+           headers: auth_header
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'does not allow DELETE requests' do
+      delete "/api/v1/members/#{active_member.id}",
+             headers: auth_header
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

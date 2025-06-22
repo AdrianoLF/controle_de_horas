@@ -8,6 +8,7 @@ const state = {
     id: null,
     username: null,
     email: null,
+    super_admin: false,
   },
 };
 const getters = {
@@ -24,6 +25,9 @@ const getters = {
     const loggedOut =
       state.auth_token == null || state.auth_token == JSON.stringify(null);
     return !loggedOut;
+  },
+  isSuperAdmin(state) {
+    return state.user?.super_admin;
   },
 };
 const actions = {
@@ -74,19 +78,32 @@ const mutations = {
     state.auth_token = data.headers.authorization;
     axios.defaults.headers.common["Authorization"] = data.headers.authorization;
     localStorage.setItem("auth_token", data.headers.authorization);
+    localStorage.setItem("user", JSON.stringify(data.data.user));
   },
   setUserInfoFromToken(state, data) {
     state.user = data.data.user;
     state.auth_token = localStorage.getItem("auth_token");
+    state.user = {
+      id: null,
+      username: null,
+      email: null,
+      super_admin: false,
+    };
+    state.auth_token = null;
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
+    axios.defaults.headers.common["Authorization"] = null;
   },
   resetUserInfo(state) {
     state.user = {
       id: null,
       username: null,
       email: null,
+      super_admin: false,
     };
     state.auth_token = null;
     localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
     axios.defaults.headers.common["Authorization"] = null;
   },
 };
