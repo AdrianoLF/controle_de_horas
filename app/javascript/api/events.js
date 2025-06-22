@@ -1,8 +1,5 @@
 import apiClient from "./index";
-
-const jsonToParams = (json) => {
-  return new URLSearchParams(json).toString();
-};
+import { jsonToParams } from "./utils";
 
 export const getEvents = (params) => {
   const queryParams = jsonToParams(params) || "";
