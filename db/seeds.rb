@@ -8,6 +8,14 @@ User.create!(
 )
 puts '✅ Usuário admin criado'
 
+User.create!(
+  email: 'leader@acme.inc',
+  password: 'Password1!',
+  super_admin: false,
+  name: 'Leader Doe'
+)
+puts '✅ Usuário leader criado'
+
 team_dev = Team.create!(
   name: 'Time de Desenvolvimento',
   description: 'Responsável pelo desenvolvimento de software, APIs e infraestrutura'

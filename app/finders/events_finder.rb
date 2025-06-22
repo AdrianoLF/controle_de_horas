@@ -51,7 +51,6 @@ class EventsFinder
 
     from = params[:occurred_from].present? ? Date.parse(params[:occurred_from]) : nil
     to = params[:occurred_to].present? ? Date.parse(params[:occurred_to]) : nil
-    build_date_range_query(scope, from, to)
 
     if from && to
       scope.where(occurred_at: from.beginning_of_day..to.end_of_day)

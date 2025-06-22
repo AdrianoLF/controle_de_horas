@@ -4,6 +4,9 @@ RSpec.describe 'Teams API', type: :request do
   let!(:user) { create(:user) }
   let!(:team1) { create(:team, name: 'Frontend') }
   let!(:team2) { create(:team, name: 'Backend') }
+  let!(:member1) { create(:member) }
+  let!(:member2) { create(:member) }
+  let!(:member3) { create(:member) }
   let(:auth_header) { auth_headers_for(user) }
 
   describe 'GET /api/v1/teams' do
@@ -66,10 +69,16 @@ RSpec.describe 'Teams API', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'returns team details' do
+    it 'returns team details and members' do
+      team1.members << [member1, member2]
+
       get "/api/v1/teams/#{team1.id}", headers: auth_header
-      expect(response).to have_http_status(:success)
-      expect(response.parsed_body['record']['name']).to eq('Frontend')
+      expect(response).to have_http_status(:ok)
+
+      json = response.parsed_body
+      expect(json['record']['name']).to eq('Frontend')
+      expect(json['members'].count).to eq(2)
+      expect(json['members'].map { |m| m['id'] }).to contain_exactly(member1.id, member2.id)
     end
 
     it 'returns 404 for non-existent team' do
@@ -84,7 +93,7 @@ RSpec.describe 'Teams API', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'creates a new team' do
+    it 'creates a new team without members' do
       expect do
         post '/api/v1/teams',
              params: { name: 'DevOps' },
@@ -93,6 +102,21 @@ RSpec.describe 'Teams API', type: :request do
 
       expect(response).to have_http_status(:success)
       expect(Team.last.name).to eq('DevOps')
+      expect(Team.last.members).to be_empty
+    end
+
+    it 'creates a new team with members' do
+      expect do
+        post '/api/v1/teams',
+             params: { name: 'DevOps', member_ids: [member1.id, member2.id] },
+             headers: auth_header
+      end.to change(Team, :count).by(1)
+
+      expect(response).to have_http_status(:success)
+      new_team = Team.last
+      expect(new_team.name).to eq('DevOps')
+      expect(new_team.members.count).to eq(2)
+      expect(new_team.members).to contain_exactly(member1, member2)
     end
 
     it 'validates presence of name' do
@@ -111,13 +135,48 @@ RSpec.describe 'Teams API', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'updates team data' do
+    it 'updates team name' do
       patch "/api/v1/teams/#{team1.id}",
             params: { name: 'Frontend Updated' },
             headers: auth_header
 
-      expect(response).to have_http_status(:success)
+      expect(response).to have_http_status(:ok)
       expect(team1.reload.name).to eq('Frontend Updated')
+    end
+
+    context 'when managing members' do
+      before { team1.members << member1 }
+
+      it 'adds new members to a team' do
+        patch "/api/v1/teams/#{team1.id}",
+              params: { member_ids: [member1.id, member2.id] },
+              headers: auth_header
+
+        expect(response).to have_http_status(:ok)
+        expect(team1.reload.members.count).to eq(2)
+        expect(team1.members).to contain_exactly(member1, member2)
+      end
+
+      it 'removes members from a team' do
+        team1.members << member2
+        patch "/api/v1/teams/#{team1.id}",
+              params: { member_ids: [member2.id] },
+              headers: auth_header
+
+        expect(response).to have_http_status(:ok)
+        expect(team1.reload.members.count).to eq(1)
+        expect(team1.members).to contain_exactly(member2)
+      end
+
+      it 'replaces all members of a team' do
+        patch "/api/v1/teams/#{team1.id}",
+              params: { member_ids: [member2.id, member3.id] },
+              headers: auth_header
+
+        expect(response).to have_http_status(:ok)
+        expect(team1.reload.members.count).to eq(2)
+        expect(team1.members).to contain_exactly(member2, member3)
+      end
     end
 
     it 'validates presence of name on update' do

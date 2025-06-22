@@ -78,7 +78,6 @@
 <script>
 import { handleRequest } from "@/helper/request";
 import { getMember, createMember, editMember } from "@/api/members";
-import { removeMember } from "@/api/teams";
 import BaseModal from "../common/BaseModal.vue";
 
 export default {
