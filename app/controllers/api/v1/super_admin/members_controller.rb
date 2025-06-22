@@ -2,7 +2,7 @@ class Api::V1::SuperAdmin::MembersController < Api::V1::SuperAdmin::BaseControll
   before_action :member, only: %i[update show]
 
   def index
-    scope = MembersFinder.new(permitted_params).perform.includes(:teams)
+    scope = MembersFinder.new(permitted_params).perform
     @members = paginate(scope:, params: permitted_params)
   end
 
@@ -22,7 +22,7 @@ class Api::V1::SuperAdmin::MembersController < Api::V1::SuperAdmin::BaseControll
   private
 
   def permitted_params
-    params.permit(:name, :pix_key, :all_records, :page, :active, :sort_by, :sort_order, team_ids: [])
+    params.permit(:name, :pix_key, :all_records, :page, :active, :sort_by, :sort_order, :with_hours, team_ids: [])
   end
 
   def member

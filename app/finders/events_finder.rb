@@ -8,6 +8,7 @@ class EventsFinder
   def perform
     scope = Event.left_joins(:team).includes(:team, :members)
     scope = filter_by_team(scope)
+    scope = filter_by_member(scope)
     scope = filter_by_search(scope)
     scope = filter_by_occurred_range(scope)
     sort(scope)
@@ -19,6 +20,12 @@ class EventsFinder
     return scope if params[:team_ids].blank?
 
     scope.where(team_id: params[:team_ids])
+  end
+
+  def filter_by_member(scope)
+    return scope if params[:member_id].blank?
+
+    scope.joins(:event_assignments).where(event_assignments: { member_id: params[:member_id] })
   end
 
   def filter_by_search(scope)

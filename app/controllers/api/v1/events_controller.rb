@@ -40,6 +40,7 @@ class Api::V1::EventsController < Api::V1::BaseController
     params.permit(
       :duration_seconds,
       :team_id,
+      :member_id,
       :title,
       :description,
       :page,

@@ -47,6 +47,34 @@ RSpec.describe 'Events API', type: :request do
         expect(titles).to eq(['Middle Event'])
       end
 
+      it 'filters by team' do
+        team2 = create(:team)
+        create(:event, team: team2, title: 'Team 2 Event')
+
+        get "/api/v1/events?team_ids[]=#{team.id}", headers: auth_header
+        titles = response.parsed_body['records'].map { |e| e['title'] }
+
+        expect(titles).to contain_exactly('New Event', 'Middle Event', 'Old Event')
+        expect(titles).not_to include('Team 2 Event')
+      end
+
+      it 'filters by member' do
+        member = create(:member)
+        team.members << member
+        create(:event_assignment, event: old_event, member: member)
+
+        get "/api/v1/events?member_id=#{member.id}", headers: auth_header
+        titles = response.parsed_body['records'].map { |e| e['title'] }
+
+        expect(titles).to contain_exactly('Old Event')
+      end
+
+      it 'filters by search term' do
+        get '/api/v1/events?search=Middle', headers: auth_header
+        titles = response.parsed_body['records'].map { |e| e['title'] }
+        expect(titles).to contain_exactly('Middle Event')
+      end
+
       it 'supports sorting by occurred_at asc' do
         get '/api/v1/events?sort_by=occurred_at&sort_order=asc', headers: auth_header
         titles = response.parsed_body['records'].map { |e| e['title'] }

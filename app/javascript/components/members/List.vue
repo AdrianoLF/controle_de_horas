@@ -64,38 +64,54 @@
       <td>
         <div
           v-if="member.teams && member.teams.length > 0"
-          class="d-flex gap-1"
+          class="teams-container"
         >
-          <div
-            v-for="team in member.teams"
-            :key="team.id"
-            class="d-flex align-items-center mb-1"
-          >
-            <button
-              @click="openTeamModal(team.id)"
-              class="btn btn-outline-primary btn-sm ms-2"
+          <div class="d-flex gap-1">
+            <div
+              v-for="team in member.teams"
+              :key="team.id"
+              class="d-flex align-items-center mb-1"
             >
-              {{ team.name }}
-            </button>
+              <button
+                @click="openTeamModal(team.id)"
+                class="btn btn-outline-primary btn-sm"
+              >
+                {{ team.name }}
+              </button>
+            </div>
           </div>
         </div>
         <span v-else>Nenhum time</span>
       </td>
-      <td class="d-flex gap-2">
+      <td>
         <button
-          class="btn btn-outline-secondary btn-sm"
-          @click="openEditModal(member.id)"
+          v-if="member.total_seconds !== undefined"
+          @click="openHoursReport(member)"
+          class="btn btn-outline-primary btn-sm"
         >
-          Editar
+          {{ formatHoursAndMinutes(member.total_seconds) }}
         </button>
-        <button
-          :class="
-            member.active ? 'btn btn-warning btn-sm' : 'btn btn-success btn-sm'
-          "
-          @click="toggleActive(member.id, !member.active)"
-        >
-          {{ member.active ? "Desativar" : "Ativar" }}
-        </button>
+        <span v-else class="text-muted">-</span>
+      </td>
+      <td>
+        <div class="d-flex gap-2">
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            @click="openEditModal(member.id)"
+          >
+            Editar
+          </button>
+          <button
+            :class="
+              member.active
+                ? 'btn btn-warning btn-sm'
+                : 'btn btn-success btn-sm'
+            "
+            @click="toggleActive(member.id, !member.active)"
+          >
+            {{ member.active ? "Desativar" : "Ativar" }}
+          </button>
+        </div>
       </td>
     </template>
   </BaseList>
@@ -147,6 +163,13 @@
       </div>
     </div>
   </FiltersModal>
+
+  <MemberHoursReport
+    :show="showHoursReport"
+    :member-id="selectedMemberForReport?.id"
+    :member-data="selectedMemberForReport"
+    @close="closeHoursReport"
+  />
 </template>
 
 <script>
@@ -157,6 +180,7 @@ import BaseList from "../common/BaseList.vue";
 import MemberModal from "./MemberModal.vue";
 import FiltersModal from "../common/FiltersModal.vue";
 import TeamModal from "../teams/TeamModal.vue";
+import MemberHoursReport from "../reports/MemberHoursReport.vue";
 
 export default {
   name: "MembersList",
@@ -165,6 +189,7 @@ export default {
     MemberModal,
     FiltersModal,
     TeamModal,
+    MemberHoursReport,
   },
   data() {
     return {
@@ -175,6 +200,7 @@ export default {
       headers: [
         { label: "Nome", key: "name", sortable: true },
         { label: "Times", key: "teams", sortable: false },
+        { label: "Horas Totais", key: "total_hours", sortable: true },
         { label: "Ações", key: "actions", sortable: false },
       ],
 
@@ -190,6 +216,10 @@ export default {
       filterActive: true, // Padrão: apenas membros ativos
       selectedTeamIds: [], // Times selecionados para filtro
       availableTeams: [], // Lista de todos os times disponíveis
+
+      // ===== RELATÓRIO DE HORAS =====
+      showHoursReport: false,
+      selectedMemberForReport: null,
     };
   },
   computed: {
@@ -249,8 +279,10 @@ export default {
 
     // ===== MÉTODOS PRINCIPAIS =====
     async handleFetch(params) {
+      const requestParams = { ...params, with_hours: true };
+
       await handleRequest({
-        request: () => getMembers(params),
+        request: () => getMembers(requestParams),
         processOnSuccess: (response) => {
           this.members = response.records;
           this.totalPages = response.total_pages || 1;
@@ -372,6 +404,25 @@ export default {
       // Mantém os filtros atuais após salvar
       this.$refs.baseList?.fetchData();
     },
+
+    // ===== RELATÓRIO DE HORAS =====
+    openHoursReport(member) {
+      this.selectedMemberForReport = member;
+      this.showHoursReport = true;
+    },
+
+    closeHoursReport() {
+      this.showHoursReport = false;
+      this.selectedMemberForReport = null;
+    },
+
+    // ===== FORMATAÇÃO =====
+    formatHoursAndMinutes(seconds) {
+      if (!seconds || seconds === 0) return "0h 0min";
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${hours}h ${minutes}min`;
+    },
   },
 };
 </script>
@@ -406,5 +457,41 @@ export default {
 .filter-indicator::before {
   content: "🔍";
   margin-right: 0.5rem;
+}
+
+.btn-outline-info {
+  color: #0dcaf0 !important;
+  border-color: #0dcaf0 !important;
+}
+
+.btn-outline-info:hover {
+  background-color: #0dcaf0 !important;
+  border-color: #0dcaf0 !important;
+  color: white !important;
+}
+
+.teams-container {
+  max-width: 80%;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  white-space: nowrap;
+}
+
+.teams-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.teams-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.teams-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.teams-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 </style>

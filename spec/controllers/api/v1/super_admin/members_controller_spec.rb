@@ -64,6 +64,46 @@ RSpec.describe 'Super Admin Members API', type: :request do
         member_names = response.parsed_body['records'].map { |m| m['name'] }
         expect(member_names.first(3)).to eq(['Alice', 'Bob', 'Jane Smith'])
       end
+
+      context 'with hours calculation' do
+        let!(:team) { create(:team) }
+        let!(:event1) { create(:event, team: team, duration_seconds: 3600) }
+        let!(:event2) { create(:event, team: team, duration_seconds: 1800) }
+
+        before do
+          active_member.teams << team
+          create(:event_assignment, member: active_member, event: event1)
+          create(:event_assignment, member: active_member, event: event2)
+        end
+
+        it 'returns members with their hour calculations' do
+          get '/api/v1/super_admin/members?with_hours=true', headers: auth_header
+          expect(response).to have_http_status(:ok)
+
+          json = response.parsed_body['records']
+          active_member_data = json.find { |m| m['id'] == active_member.id }
+          inactive_member_data = json.find { |m| m['id'] == inactive_member.id }
+
+          expect(active_member_data['event_count']).to eq(2)
+          expect(active_member_data['total_seconds']).to eq(5400)
+          expect(inactive_member_data['event_count']).to eq(0)
+          expect(inactive_member_data['total_seconds']).to eq(0)
+        end
+
+        it 'sorts by total_hours' do
+          get '/api/v1/super_admin/members?with_hours=true&sort_by=total_hours&sort_order=desc', headers: auth_header
+
+          json = response.parsed_body['records']
+          ids = json.map { |m| m['id'] }
+          expect(ids.first).to eq(active_member.id)
+
+          get '/api/v1/super_admin/members?with_hours=true&sort_by=total_hours&sort_order=asc', headers: auth_header
+
+          json = response.parsed_body['records']
+          ids = json.map { |m| m['id'] }
+          expect(ids.first).to eq(inactive_member.id)
+        end
+      end
     end
   end
 

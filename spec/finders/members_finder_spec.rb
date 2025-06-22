@@ -161,5 +161,44 @@ RSpec.describe MembersFinder do
         expect(result.map(&:name)).to eq(['Alice Active'])
       end
     end
+
+    context 'with hours calculation' do
+      let!(:event1) { create(:event, team: team_frontend, duration_seconds: 3600) }
+      let!(:event2) { create(:event, team: team_frontend, duration_seconds: 1800) }
+      let!(:event3) { create(:event, team: team_backend, duration_seconds: 7200) }
+
+      before do
+        create(:event_assignment, member: active_member, event: event1)
+        create(:event_assignment, member: active_member, event: event2)
+        create(:event_assignment, member: inactive_member, event: event3)
+      end
+
+      it 'returns members with event_count and total_seconds' do
+        result = described_class.new(with_hours: true).perform
+
+        member1_result = result.find { |m| m.id == active_member.id }
+        member2_result = result.find { |m| m.id == inactive_member.id }
+        member3_result = result.find { |m| m.id == another_active.id }
+
+        expect(member1_result.event_count).to eq(2)
+        expect(member1_result.total_seconds).to eq(5400)
+
+        expect(member2_result.event_count).to eq(1)
+        expect(member2_result.total_seconds).to eq(7200)
+
+        expect(member3_result.event_count).to eq(0)
+        expect(member3_result.total_seconds).to eq(0)
+      end
+
+      it 'sorts by total_hours descending' do
+        result = described_class.new(with_hours: true, sort_by: 'total_hours', sort_order: 'desc').perform
+        expect(result.map(&:id)).to eq([inactive_member.id, active_member.id, another_active.id])
+      end
+
+      it 'sorts by total_hours ascending' do
+        result = described_class.new(with_hours: true, sort_by: 'total_hours', sort_order: 'asc').perform
+        expect(result.map(&:id)).to eq([another_active.id, active_member.id, inactive_member.id])
+      end
+    end
   end
 end
