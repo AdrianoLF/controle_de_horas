@@ -49,8 +49,8 @@
 
 <script>
 import { handleRequest } from "@/helper/request";
-import { getTeams, deleteTeam } from "@/api/teams";
-import { getMembers } from "@/api/members";
+import { getTeams, deleteTeam } from "@/api/superadmin/teams";
+import { getMembers } from "@/api/superadmin/members";
 import BaseList from "../common/BaseList.vue";
 import TeamModal from "./TeamModal.vue";
 

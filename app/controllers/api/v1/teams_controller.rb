@@ -1,5 +1,5 @@
 class Api::V1::TeamsController < Api::V1::BaseController
-  before_action :team, only: %i[destroy update show]
+  before_action :team, only: %i[show]
 
   def index
     scope = TeamsFinder.new(permitted_params).perform
@@ -8,26 +8,6 @@ class Api::V1::TeamsController < Api::V1::BaseController
 
   def show
     @team
-  end
-
-  def create
-    @team = Team.new(permitted_params.except(:member_ids))
-    @team.save && manage_members || render_error
-  end
-
-  def destroy
-    @team.destroy! and head :ok
-  end
-
-  def update
-    ActiveRecord::Base.transaction do
-      @team.update!(permitted_params.except(:member_ids))
-      manage_members
-      head :ok
-    rescue ActiveRecord::RecordInvalid
-      render_error
-      raise ActiveRecord::Rollback
-    end
   end
 
   private
@@ -45,19 +25,5 @@ class Api::V1::TeamsController < Api::V1::BaseController
 
   def team
     @team ||= Team.includes(:members, :memberships).find(params[:id])
-  end
-
-  def render_error
-    render json: { errors: @team.errors.full_messages }, status: :unprocessable_entity
-  end
-
-  def manage_members
-    current_member_ids = @team.member_ids
-    new_member_ids = Array.wrap(permitted_params[:member_ids]).map(&:to_i)
-
-    @team.memberships.where(member_id: current_member_ids - new_member_ids).destroy_all
-    (new_member_ids - current_member_ids).each { |id| @team.memberships.create!(member_id: id) }
-
-    @team.reload
   end
 end

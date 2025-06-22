@@ -106,7 +106,7 @@
 
 <script>
 import { handleRequest } from "@/helper/request";
-import { getTeam, createTeam, editTeam } from "@/api/teams";
+import { getTeam, createTeam, editTeam } from "@/api/superadmin/teams";
 import BaseModal from "../common/BaseModal.vue";
 
 export default {

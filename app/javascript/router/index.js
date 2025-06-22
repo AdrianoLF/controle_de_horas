@@ -24,6 +24,7 @@ const routes = [
     path: "/teams",
     name: "TeamsList",
     component: TeamsList,
+    meta: { requiresSuperAdmin: true },
   },
 
   // EVENTOS

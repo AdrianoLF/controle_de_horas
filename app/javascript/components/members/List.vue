@@ -152,7 +152,7 @@
 <script>
 import { handleRequest } from "@/helper/request";
 import { getMembers, editMember } from "@/api/superadmin/members";
-import { getTeams } from "@/api/teams";
+import { getTeams } from "@/api/superadmin/teams";
 import BaseList from "../common/BaseList.vue";
 import MemberModal from "./MemberModal.vue";
 import FiltersModal from "../common/FiltersModal.vue";

@@ -17,7 +17,7 @@ Rails.application.routes.draw do
 
       resources :members, only: %i[index show]
 
-      resources :teams, only: %i[index update create destroy show]
+      resources :teams, only: %i[index show]
 
       resources :events, only: %i[index update create destroy show]
 
@@ -30,6 +30,7 @@ Rails.application.routes.draw do
         end
 
         resources :members, only: %i[index update create show]
+        resources :teams, only: %i[index update create destroy show]
       end
     end
   end

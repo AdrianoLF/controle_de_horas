@@ -88,123 +88,22 @@ RSpec.describe 'Teams API', type: :request do
   end
 
   describe 'POST /api/v1/teams' do
-    it 'requires authentication' do
-      post '/api/v1/teams', params: { name: 'New Team' }
-      expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'creates a new team without members' do
-      expect do
-        post '/api/v1/teams',
-             params: { name: 'DevOps' },
-             headers: auth_header
-      end.to change(Team, :count).by(1)
-
-      expect(response).to have_http_status(:success)
-      expect(Team.last.name).to eq('DevOps')
-      expect(Team.last.members).to be_empty
-    end
-
-    it 'creates a new team with members' do
-      expect do
-        post '/api/v1/teams',
-             params: { name: 'DevOps', member_ids: [member1.id, member2.id] },
-             headers: auth_header
-      end.to change(Team, :count).by(1)
-
-      expect(response).to have_http_status(:success)
-      new_team = Team.last
-      expect(new_team.name).to eq('DevOps')
-      expect(new_team.members.count).to eq(2)
-      expect(new_team.members).to contain_exactly(member1, member2)
-    end
-
-    it 'validates presence of name' do
-      post '/api/v1/teams',
-           params: { name: '' },
-           headers: auth_header
-
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['errors']).to include("Name can't be blank")
+    it 'returns method not allowed' do
+      post '/api/v1/teams', params: { name: 'New Team' }, headers: auth_header
+      expect(response).to have_http_status(:not_found)
     end
   end
 
   describe 'PATCH /api/v1/teams/:id' do
-    it 'requires authentication' do
-      patch "/api/v1/teams/#{team1.id}", params: { name: 'Updated Team' }
-      expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'updates team name' do
-      patch "/api/v1/teams/#{team1.id}",
-            params: { name: 'Frontend Updated' },
-            headers: auth_header
-
-      expect(response).to have_http_status(:ok)
-      expect(team1.reload.name).to eq('Frontend Updated')
-    end
-
-    context 'when managing members' do
-      before { team1.members << member1 }
-
-      it 'adds new members to a team' do
-        patch "/api/v1/teams/#{team1.id}",
-              params: { member_ids: [member1.id, member2.id] },
-              headers: auth_header
-
-        expect(response).to have_http_status(:ok)
-        expect(team1.reload.members.count).to eq(2)
-        expect(team1.members).to contain_exactly(member1, member2)
-      end
-
-      it 'removes members from a team' do
-        team1.members << member2
-        patch "/api/v1/teams/#{team1.id}",
-              params: { member_ids: [member2.id] },
-              headers: auth_header
-
-        expect(response).to have_http_status(:ok)
-        expect(team1.reload.members.count).to eq(1)
-        expect(team1.members).to contain_exactly(member2)
-      end
-
-      it 'replaces all members of a team' do
-        patch "/api/v1/teams/#{team1.id}",
-              params: { member_ids: [member2.id, member3.id] },
-              headers: auth_header
-
-        expect(response).to have_http_status(:ok)
-        expect(team1.reload.members.count).to eq(2)
-        expect(team1.members).to contain_exactly(member2, member3)
-      end
-    end
-
-    it 'validates presence of name on update' do
-      patch "/api/v1/teams/#{team1.id}",
-            params: { name: '' },
-            headers: auth_header
-
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['errors']).to include("Name can't be blank")
+    it 'returns method not allowed' do
+      patch "/api/v1/teams/#{team1.id}", params: { name: 'Updated Team' }, headers: auth_header
+      expect(response).to have_http_status(:not_found)
     end
   end
 
   describe 'DELETE /api/v1/teams/:id' do
-    it 'requires authentication' do
-      delete "/api/v1/teams/#{team1.id}"
-      expect(response).to have_http_status(:unauthorized)
-    end
-
-    it 'deletes the team' do
-      expect do
-        delete "/api/v1/teams/#{team1.id}", headers: auth_header
-      end.to change(Team, :count).by(-1)
-
-      expect(response).to have_http_status(:success)
-    end
-
-    it 'returns 404 for non-existent team' do
-      delete '/api/v1/teams/0', headers: auth_header
+    it 'returns method not allowed' do
+      delete "/api/v1/teams/#{team1.id}", headers: auth_header
       expect(response).to have_http_status(:not_found)
     end
   end

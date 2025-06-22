@@ -47,7 +47,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
+            <li class="nav-item" v-if="isSuperAdmin">
               <router-link to="/" class="nav-link" active-class="active" exact>
                 Relatórios
               </router-link>
@@ -57,7 +57,7 @@
                 >Membros</router-link
               >
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="isSuperAdmin">
               <router-link to="/teams" class="nav-link" active-class="active"
                 >Times</router-link
               >
