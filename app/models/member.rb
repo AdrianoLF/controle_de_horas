@@ -23,6 +23,8 @@ class Member < ApplicationRecord
 
   before_save :update_disabled_at, if: :active_changed?
 
+  scope :active, -> { where(active: true) }
+
   private
 
   def update_disabled_at

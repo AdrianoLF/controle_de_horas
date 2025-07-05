@@ -3,6 +3,7 @@ class Api::V1::MembersController < Api::V1::BaseController
 
   def index
     scope = MembersFinder.new(permitted_params).perform.includes(:teams)
+    scope = scope.active if permitted_params[:all_records] == 'true'
     @members = paginate(scope:, params: permitted_params)
   end
 
@@ -18,6 +19,6 @@ class Api::V1::MembersController < Api::V1::BaseController
   end
 
   def member
-    @member ||= Member.includes(:memberships, :teams).find(params[:id])
+    @member ||= Member.active.includes(:memberships, :teams).find(params[:id])
   end
 end

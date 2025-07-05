@@ -19,6 +19,13 @@ RSpec.describe 'Members API (Read-only)', type: :request do
         expect(member_names).to include('John Doe', 'Jane Smith')
       end
 
+      it 'returns only active members when all_records is true' do
+        get '/api/v1/members?all_records=true', headers: auth_header
+        member_names = response.parsed_body['records'].map { |m| m['name'] }
+        expect(member_names).to include('John Doe')
+        expect(member_names).not_to include('Jane Smith')
+      end
+
       it 'filters by active status' do
         # Apenas ativos
         get '/api/v1/members?active=true', headers: auth_header
