@@ -15,7 +15,7 @@ class Api::V1::EventsController < Api::V1::BaseController
     @event = Event.new(permitted_params.except(:member_ids, :team_ids))
 
     ActiveRecord::Base.transaction do
-      if @event.save && manage_teams && manage_members
+      if add_teams_to_event && @event.save && manage_members
         head :created
       else
         render_error
@@ -68,6 +68,13 @@ class Api::V1::EventsController < Api::V1::BaseController
 
   def render_error
     render json: { errors: @event.errors.full_messages }, status: :unprocessable_entity
+  end
+
+  def add_teams_to_event
+    team_ids = Array.wrap(permitted_params[:team_ids]).map(&:to_i)
+    teams = Team.where(id: team_ids)
+    @event.teams = teams
+    true
   end
 
   def manage_teams
