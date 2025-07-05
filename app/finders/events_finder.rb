@@ -51,18 +51,16 @@ class EventsFinder
     sort_by = params[:sort_by]
     sort_order = params[:sort_order] || 'desc'
 
-    order_clause = case sort_by
-                   when 'title', 'duration_seconds', 'occurred_at'
-                     "events.#{sort_by} #{sort_order}"
-                   when 'team_name'
-                     "teams.name #{sort_order}"
-                   when 'members_count'
-                     count = 'SELECT COUNT(*) FROM event_assignments WHERE event_assignments.event_id = events.id'
-                     "(#{count}) #{sort_order}"
-                   else
-                     'events.occurred_at desc'
-                   end
-
-    scope.order(Arel.sql(order_clause))
+    case sort_by
+    when 'title', 'duration_seconds', 'occurred_at'
+      scope.order("events.#{sort_by} #{sort_order}")
+    when 'team_name'
+      scope.select('events.*, teams.name as team_name_sort').order("teams.name #{sort_order}")
+    when 'members_count'
+      count = 'SELECT COUNT(*) FROM event_assignments WHERE event_assignments.event_id = events.id'
+      scope.select("events.*, (#{count}) as members_count_sort").order("(#{count}) #{sort_order}")
+    else
+      scope.order('events.occurred_at desc')
+    end
   end
 end
