@@ -19,7 +19,7 @@ class Member < ApplicationRecord
   has_many :events, through: :event_assignments
 
   validates :name, presence: true
-  validates :pix_key, uniqueness: true
+  validates :pix_key, uniqueness: true, allow_blank: true
 
   before_save :update_disabled_at, if: :active_changed?
 

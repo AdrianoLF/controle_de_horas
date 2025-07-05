@@ -11,7 +11,15 @@ class Api::V1::SuperAdmin::MembersController < Api::V1::SuperAdmin::BaseControll
   end
 
   def create
-    @member = Member.new(permitted_params)
+    member_attr = {
+      name: permitted_params[:name],
+      pix_key: permitted_params[:pix_key],
+      external_id: permitted_params[:external_id],
+      active: permitted_params[:active],
+      team_ids: permitted_params[:team_ids]
+    }.compact_blank
+
+    @member = Member.new(member_attr)
     @member.save || render_error
   end
 
