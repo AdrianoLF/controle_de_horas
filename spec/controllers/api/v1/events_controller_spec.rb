@@ -4,9 +4,24 @@ RSpec.describe 'Events API', type: :request do
   let!(:user) { create(:user) }
   let!(:team) { create(:team) }
 
-  let!(:old_event) { create(:event, team: team, occurred_at: 10.days.ago, title: 'Old Event') }
-  let!(:middle_event) { create(:event, team: team, occurred_at: 5.days.ago, title: 'Middle Event') }
-  let!(:new_event) { create(:event, team: team, occurred_at: 1.day.ago, title: 'New Event') }
+  let!(:old_event) do
+    event = build(:event, occurred_at: 10.days.ago, title: 'Old Event')
+    event.teams << team
+    event.save!
+    event
+  end
+  let!(:middle_event) do
+    event = build(:event, occurred_at: 5.days.ago, title: 'Middle Event')
+    event.teams << team
+    event.save!
+    event
+  end
+  let!(:new_event) do
+    event = build(:event, occurred_at: 1.day.ago, title: 'New Event')
+    event.teams << team
+    event.save!
+    event
+  end
 
   let(:auth_header) { auth_headers_for(user) }
 
@@ -49,7 +64,9 @@ RSpec.describe 'Events API', type: :request do
 
       it 'filters by team' do
         team2 = create(:team)
-        create(:event, team: team2, title: 'Team 2 Event')
+        event = build(:event, title: 'Team 2 Event')
+        event.teams << team2
+        event.save!
 
         get "/api/v1/events?team_ids[]=#{team.id}", headers: auth_header
         titles = response.parsed_body['records'].map { |e| e['title'] }

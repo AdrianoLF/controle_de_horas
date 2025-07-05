@@ -11,7 +11,8 @@
 class Team < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :members, through: :memberships
-  has_many :events, dependent: :nullify
+  has_many :event_teams, dependent: :destroy
+  has_many :events, through: :event_teams
 
   validates :name, presence: true,
                    length: { minimum: 3, maximum: 100, message: 'Nome deve ter entre 3 e 100 caracteres' }

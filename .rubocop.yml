@@ -26,6 +26,7 @@ Style/WordArray:
 Metrics/AbcSize:
   Exclude:
     - "app/finders/events_finder.rb"
+    - "app/controllers/api/v1/events_controller.rb"
 
 Metrics/CyclomaticComplexity:
   Exclude:

@@ -12,9 +12,16 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def create
-    @event = Event.new(permitted_params.except(:member_ids))
+    @event = Event.new(permitted_params.except(:member_ids, :team_ids))
 
-    @event.save && manage_members || render_error
+    ActiveRecord::Base.transaction do
+      if @event.save && manage_teams && manage_members
+        head :created
+      else
+        render_error
+        raise ActiveRecord::Rollback
+      end
+    end
   end
 
   def destroy
@@ -22,10 +29,10 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def update
-    @event.update(permitted_params.except(:member_ids))
+    @event.update(permitted_params.except(:member_ids, :team_ids))
 
     ActiveRecord::Base.transaction do
-      if @event.save && manage_members
+      if @event.save && manage_teams && manage_members
         head :ok
       else
         render_error
@@ -56,11 +63,23 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def event
-    @event ||= Event.includes(:team, :members).find(params[:id])
+    @event ||= Event.includes(:teams, :members).find(params[:id])
   end
 
   def render_error
     render json: { errors: @event.errors.full_messages }, status: :unprocessable_entity
+  end
+
+  def manage_teams
+    current_team_ids = @event.team_ids
+    new_team_ids = Array.wrap(permitted_params[:team_ids]).map(&:to_i)
+
+    return true if current_team_ids.sort == new_team_ids.sort
+
+    @event.event_teams.where(team_id: current_team_ids - new_team_ids)&.each(&:destroy)
+    (new_team_ids - current_team_ids).each { |id| @event.event_teams.create!(team_id: id) }
+
+    @event.reload
   end
 
   def manage_members

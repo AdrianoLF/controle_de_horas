@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_06_21_223925) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_05_151713) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -23,15 +23,23 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_21_223925) do
     t.index ['member_id'], name: 'index_event_assignments_on_member_id'
   end
 
+  create_table 'event_teams', force: :cascade do |t|
+    t.bigint 'event_id', null: false
+    t.bigint 'team_id', null: false
+    t.datetime 'created_at', null: false
+    t.datetime 'updated_at', null: false
+    t.index ['event_id', 'team_id'], name: 'index_event_teams_on_event_id_and_team_id', unique: true
+    t.index ['event_id'], name: 'index_event_teams_on_event_id'
+    t.index ['team_id'], name: 'index_event_teams_on_team_id'
+  end
+
   create_table 'events', force: :cascade do |t|
     t.string 'title'
     t.text 'description'
     t.integer 'duration_seconds'
-    t.bigint 'team_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
     t.datetime 'occurred_at'
-    t.index ['team_id'], name: 'index_events_on_team_id'
   end
 
   create_table 'jwt_denylist', force: :cascade do |t|
@@ -88,7 +96,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_06_21_223925) do
 
   add_foreign_key 'event_assignments', 'events'
   add_foreign_key 'event_assignments', 'members'
-  add_foreign_key 'events', 'teams'
+  add_foreign_key 'event_teams', 'events'
+  add_foreign_key 'event_teams', 'teams'
   add_foreign_key 'memberships', 'members'
   add_foreign_key 'memberships', 'teams'
 end

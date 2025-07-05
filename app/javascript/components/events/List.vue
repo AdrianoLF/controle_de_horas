@@ -39,7 +39,14 @@
         </button>
       </td>
       <td>{{ formatDate(event.occurred_at) }}</td>
-      <td>{{ event.team?.name || "-" }}</td>
+      <td>
+        <span v-if="event.teams && event.teams.length > 0">
+          <span v-for="(team, index) in event.teams" :key="team.id">
+            {{ team.name }}<span v-if="index < event.teams.length - 1">, </span>
+          </span>
+        </span>
+        <span v-else>-</span>
+      </td>
       <td>{{ formatDuration(event.duration_seconds) }}</td>
       <td>
         <button @click="openEditModal(event.id)" class="btn btn-info btn-sm">
@@ -76,29 +83,28 @@
     @clear="clearAllFilters"
   >
     <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Times</label>
+        <VueMultiselect
+          v-model="selectedTeams"
+          :options="availableTeams"
+          :multiple="true"
+          :close-on-select="false"
+          :preserve-search="true"
+          placeholder="Selecione os times"
+          label="name"
+          track-by="id"
+        />
+      </div>
+
       <div class="col-md-6">
         <label class="form-label">Data Inicial</label>
         <input type="date" class="form-control" v-model="filterDateStart" />
       </div>
+
       <div class="col-md-6">
         <label class="form-label">Data Final</label>
         <input type="date" class="form-control" v-model="filterDateEnd" />
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">Times</label>
-        <select class="form-select" v-model="selectedTeamIds" multiple size="8">
-          <option
-            v-for="team in availableTeams"
-            :key="team.id"
-            :value="team.id"
-          >
-            {{ team.name }}
-          </option>
-        </select>
-        <small class="form-text text-muted">
-          Segure Ctrl/Cmd para selecionar múltiplos.
-        </small>
       </div>
     </div>
   </FiltersModal>
@@ -111,6 +117,7 @@ import { getTeams } from "@/api/teams";
 import BaseList from "../common/BaseList.vue";
 import EventModal from "./EventModal.vue";
 import FiltersModal from "../common/FiltersModal.vue";
+import VueMultiselect from "vue-multiselect";
 
 export default {
   name: "EventsList",
@@ -119,6 +126,7 @@ export default {
     BaseList,
     EventModal,
     FiltersModal,
+    VueMultiselect,
   },
 
   data() {
@@ -142,7 +150,7 @@ export default {
       selectedEventId: null,
 
       // ===== FILTROS =====
-      selectedTeamIds: [],
+      selectedTeams: [],
       availableTeams: [],
       filterDateStart: "",
       filterDateEnd: "",
@@ -150,15 +158,18 @@ export default {
   },
 
   computed: {
+    selectedTeamIds() {
+      return this.selectedTeams.map((team) => team.id);
+    },
     activeFiltersCount() {
       let count = 0;
-      if (this.selectedTeamIds.length > 0) count += 1;
+      if (this.selectedTeams.length > 0) count += 1;
       if (this.filterDateStart || this.filterDateEnd) count += 1;
       return count;
     },
     hasAnyFilters() {
       return (
-        this.selectedTeamIds.length > 0 ||
+        this.selectedTeams.length > 0 ||
         this.filterDateStart !== "" ||
         this.filterDateEnd !== ""
       );
@@ -168,10 +179,9 @@ export default {
 
       const parts = [];
 
-      if (this.selectedTeamIds.length > 0) {
-        const teamNames = this.selectedTeamIds
-          .map((id) => this.availableTeams.find((team) => team.id === id)?.name)
-          .filter(Boolean)
+      if (this.selectedTeams.length > 0) {
+        const teamNames = this.selectedTeams
+          .map((team) => team.name)
           .join(", ");
         parts.push(`Times: ${teamNames}`);
       }
@@ -291,7 +301,7 @@ export default {
     },
 
     clearAllFilters() {
-      this.selectedTeamIds = [];
+      this.selectedTeams = [];
       this.filterDateStart = "";
       this.filterDateEnd = "";
       this.$refs.baseList?.resetToInitialState();
@@ -311,6 +321,7 @@ export default {
 };
 </script>
 
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
 .btn-link.text-start {
   color: #0d6efd !important;
@@ -325,5 +336,49 @@ export default {
 .filter-indicator::before {
   content: "🔍";
   margin-right: 0.5rem;
+}
+
+:deep(.multiselect__tags) {
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px 40px 0 8px;
+}
+
+:deep(.multiselect__tag) {
+  background: #007bff;
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 4px 2px 0;
+  font-size: 12px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.multiselect__tag-icon:hover) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+:deep(.multiselect__content-wrapper) {
+  position: absolute;
+  z-index: 1050;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.modal-body) {
+  overflow: visible;
+  min-height: 300px;
+}
+
+:deep(.modal-content) {
+  overflow: visible;
 }
 </style>

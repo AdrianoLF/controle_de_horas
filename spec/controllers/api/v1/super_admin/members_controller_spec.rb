@@ -67,8 +67,18 @@ RSpec.describe 'Super Admin Members API', type: :request do
 
       context 'with hours calculation' do
         let!(:team) { create(:team) }
-        let!(:event1) { create(:event, team: team, duration_seconds: 3600) }
-        let!(:event2) { create(:event, team: team, duration_seconds: 1800) }
+        let!(:event1) do
+          event = build(:event, duration_seconds: 3600)
+          event.teams << team
+          event.save!
+          event
+        end
+        let!(:event2) do
+          event = build(:event, duration_seconds: 1800)
+          event.teams << team
+          event.save!
+          event
+        end
 
         before do
           active_member.teams << team

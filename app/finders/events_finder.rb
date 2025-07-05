@@ -6,7 +6,7 @@ class EventsFinder
   end
 
   def perform
-    scope = Event.left_joins(:team).includes(:team, :members)
+    scope = Event.left_joins(:teams).includes(:teams, :members)
     scope = filter_by_team(scope)
     scope = filter_by_member(scope)
     scope = filter_by_search(scope)
@@ -19,7 +19,7 @@ class EventsFinder
   def filter_by_team(scope)
     return scope if params[:team_ids].blank?
 
-    scope.where(team_id: params[:team_ids])
+    scope.joins(:event_teams).where(event_teams: { team_id: params[:team_ids] })
   end
 
   def filter_by_member(scope)
@@ -32,6 +32,18 @@ class EventsFinder
     return scope if params[:search].blank?
 
     scope.where('events.title ILIKE ?', "%#{params[:search]}%")
+  end
+
+  def filter_by_occurred_range(scope)
+    if params[:occurred_from].present?
+      scope = scope.where('events.occurred_at >= ?',
+                          Date.parse(params[:occurred_from]))
+    end
+    if params[:occurred_to].present?
+      scope = scope.where('events.occurred_at <= ?',
+                          Date.parse(params[:occurred_to]).end_of_day)
+    end
+    scope
   end
 
   def sort(scope)
@@ -51,20 +63,5 @@ class EventsFinder
                    end
 
     scope.order(Arel.sql(order_clause))
-  end
-
-  def filter_by_occurred_range(scope)
-    return scope if params[:occurred_from].blank? && params[:occurred_to].blank?
-
-    from = params[:occurred_from].present? ? Date.parse(params[:occurred_from]) : nil
-    to = params[:occurred_to].present? ? Date.parse(params[:occurred_to]) : nil
-
-    if from && to
-      scope.where(occurred_at: from.beginning_of_day..to.end_of_day)
-    elsif from
-      scope.where('events.occurred_at >= ?', from.beginning_of_day)
-    else
-      scope.where('events.occurred_at <= ?', to.end_of_day)
-    end
   end
 end

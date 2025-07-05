@@ -6,9 +6,24 @@ RSpec.describe EventsFinder, type: :finder do
   let!(:member1) { create(:member) }
   let!(:member2) { create(:member) }
 
-  let!(:event1) { create(:event, team: team1, occurred_at: 10.days.ago, title: 'Old Event') }
-  let!(:event2) { create(:event, team: team1, occurred_at: 5.days.ago, title: 'Middle Event') }
-  let!(:event3) { create(:event, team: team2, occurred_at: 1.day.ago, title: 'Recent Event') }
+  let!(:event1) do
+    event = build(:event, occurred_at: 10.days.ago, title: 'Old Event')
+    event.teams << team1
+    event.save!
+    event
+  end
+  let!(:event2) do
+    event = build(:event, occurred_at: 5.days.ago, title: 'Middle Event')
+    event.teams << team1
+    event.save!
+    event
+  end
+  let!(:event3) do
+    event = build(:event, occurred_at: 1.day.ago, title: 'Recent Event')
+    event.teams << team2
+    event.save!
+    event
+  end
 
   before do
     member1.teams << team1
@@ -101,9 +116,12 @@ RSpec.describe EventsFinder, type: :finder do
       end
 
       it 'sorts by team name' do
-        create(:event, team: create(:team, name: 'Team C'), title: 'Another Event')
+        team_c = create(:team, name: 'Team C')
+        event_c = build(:event, title: 'Another Event')
+        event_c.teams << team_c
+        event_c.save!
         result = described_class.new(sort_by: 'team_name', sort_order: 'asc').perform
-        expect(result.map { |e| e.team.name }).to eq(['Team A', 'Team A', 'Team B', 'Team C'])
+        expect(result.map { |e| e.teams.first.name }).to eq(['Team A', 'Team A', 'Team B', 'Team C'])
       end
     end
   end

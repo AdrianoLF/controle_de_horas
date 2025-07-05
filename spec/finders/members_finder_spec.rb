@@ -163,9 +163,24 @@ RSpec.describe MembersFinder do
     end
 
     context 'with hours calculation' do
-      let!(:event1) { create(:event, team: team_frontend, duration_seconds: 3600) }
-      let!(:event2) { create(:event, team: team_frontend, duration_seconds: 1800) }
-      let!(:event3) { create(:event, team: team_backend, duration_seconds: 7200) }
+      let!(:event1) do
+        event = build(:event, duration_seconds: 3600)
+        event.teams << team_frontend
+        event.save!
+        event
+      end
+      let!(:event2) do
+        event = build(:event, duration_seconds: 1800)
+        event.teams << team_frontend
+        event.save!
+        event
+      end
+      let!(:event3) do
+        event = build(:event, duration_seconds: 7200)
+        event.teams << team_backend
+        event.save!
+        event
+      end
 
       before do
         create(:event_assignment, member: active_member, event: event1)
