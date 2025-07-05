@@ -22,7 +22,8 @@ class Api::V1::SuperAdmin::MembersController < Api::V1::SuperAdmin::BaseControll
   private
 
   def permitted_params
-    params.permit(:name, :pix_key, :all_records, :page, :active, :sort_by, :sort_order, :with_hours, team_ids: [])
+    params.permit(:name, :pix_key, :external_id, :all_records, :page,
+                  :active, :sort_by, :sort_order, :with_hours, team_ids: [])
   end
 
   def member

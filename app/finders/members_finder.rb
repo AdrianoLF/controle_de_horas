@@ -3,6 +3,7 @@ class MembersFinder
     @params = params
     @active = @params[:active]
     @name = @params[:name]
+    @external_id = @params[:external_id]
     @team_ids = @params[:team_ids]
     @sort_by = @params[:sort_by] || 'name'
     @sort_order = @params[:sort_order] || 'asc'
@@ -21,6 +22,7 @@ class MembersFinder
 
   def apply_filters(scope)
     scope = filter_by_name(scope)
+    scope = filter_by_external_id(scope)
     scope = filter_by_active(scope)
     filter_by_teams(scope)
   end
@@ -29,6 +31,12 @@ class MembersFinder
     return scope if @name.blank?
 
     scope.where('members.name ILIKE ?', "%#{@name}%")
+  end
+
+  def filter_by_external_id(scope)
+    return scope if @external_id.blank?
+
+    scope.where('members.external_id ILIKE ?', "%#{@external_id}%")
   end
 
   def filter_by_active(scope)

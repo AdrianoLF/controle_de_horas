@@ -2,6 +2,7 @@ json.id resource.id
 json.name resource.name
 json.email resource.email
 json.pix_key resource.pix_key
+json.external_id resource.external_id
 json.active resource.active
 json.disabled_at resource.disabled_at
 json.created_at resource.created_at

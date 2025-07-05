@@ -55,6 +55,16 @@ RSpec.describe 'Super Admin Members API', type: :request do
         expect(member_names).not_to include('Jane Smith')
       end
 
+      it 'filters by external_id' do
+        create(:member, name: 'Member with ID', external_id: '12345678901')
+        create(:member, name: 'Member without ID', external_id: nil)
+
+        get '/api/v1/super_admin/members?external_id=12345678901', headers: auth_header
+        member_names = response.parsed_body['records'].map { |m| m['name'] }
+        expect(member_names).to include('Member with ID')
+        expect(member_names).not_to include('Member without ID', 'John Doe', 'Jane Smith')
+      end
+
       it 'supports sorting' do
         create(:member, name: 'Alice', active: true)
         create(:member, name: 'Bob', active: true)

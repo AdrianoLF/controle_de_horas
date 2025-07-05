@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_07_05_151713) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_05_180617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension 'plpgsql'
 
@@ -58,6 +58,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_07_05_151713) do
     t.boolean 'active', default: true
     t.string 'pix_key'
     t.datetime 'disabled_at'
+    t.string 'external_id'
     t.index ['pix_key'], name: 'index_members_on_pix_key', unique: true
   end
 

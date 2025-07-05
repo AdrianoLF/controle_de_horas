@@ -84,6 +84,28 @@ RSpec.describe MembersFinder do
       end
     end
 
+    context 'when filtering by external_id' do
+      let!(:member_with_external_id) { create(:member, external_id: '12345678901') }
+      let!(:member_with_another_external_id) { create(:member, external_id: '98765432100') }
+
+      it 'filters by exact external_id match' do
+        result = described_class.new(external_id: '12345678901').perform
+        expect(result).to include(member_with_external_id)
+        expect(result).not_to include(member_with_another_external_id, active_member, inactive_member)
+      end
+
+      it 'returns empty when no external_id matches' do
+        result = described_class.new(external_id: '00000000000').perform
+        expect(result).to be_empty
+      end
+
+      it 'returns empty when external_id is blank' do
+        result = described_class.new(external_id: '').perform
+        expect(result).to include(active_member, inactive_member, another_active, member_with_external_id,
+                                  member_with_another_external_id)
+      end
+    end
+
     context 'when filtering by teams' do
       it 'filters by single team' do
         result = described_class.new(team_ids: [team_frontend.id]).perform

@@ -28,6 +28,21 @@
         />
       </div>
 
+      <div class="mb-3">
+        <label for="member-external-id" class="form-label">RA do aluno</label>
+        <input
+          id="member-external-id"
+          type="text"
+          class="form-control"
+          v-model="formData.external_id"
+          @input="formatExternalId"
+          placeholder="Ex: 12345678901"
+        />
+        <small class="form-text text-muted">
+          Apenas números (pode começar com 0)
+        </small>
+      </div>
+
       <div v-if="isEditing && memberships.length > 0" class="mb-4">
         <h6 class="fw-bold mb-3">Times do Membro</h6>
         <div class="table-responsive">
@@ -97,7 +112,7 @@ export default {
   },
   data() {
     return {
-      formData: { name: "", pix_key: "" },
+      formData: { name: "", pix_key: "", external_id: "" },
       member: null,
       memberships: [],
       loading: false,
@@ -131,7 +146,7 @@ export default {
   },
   methods: {
     resetForm() {
-      this.formData = { name: "", pix_key: "" };
+      this.formData = { name: "", pix_key: "", external_id: "" };
       this.member = null;
       this.memberships = [];
     },
@@ -142,6 +157,7 @@ export default {
           this.member = response.record;
           this.formData.name = response.record?.name || "";
           this.formData.pix_key = response.record?.pix_key || "";
+          this.formData.external_id = response.record?.external_id || "";
           this.memberships = response.memberships.map((membership) => ({
             ...membership,
             team: response.teams.find((team) => team.id === membership.team_id),
@@ -201,6 +217,10 @@ export default {
           this.loading = false;
         },
       });
+    },
+    formatExternalId(event) {
+      const value = event.target.value.replace(/\D/g, "");
+      this.formData.external_id = value;
     },
   },
 };

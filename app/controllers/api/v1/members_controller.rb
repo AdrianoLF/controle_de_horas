@@ -13,7 +13,8 @@ class Api::V1::MembersController < Api::V1::BaseController
   private
 
   def permitted_params
-    params.permit(:name, :pix_key, :all_records, :page, :active, :sort_by, :sort_order, team_ids: [])
+    params.permit(:name, :pix_key, :external_id, :all_records, :page, :active,
+                  :sort_by, :sort_order, team_ids: [])
   end
 
   def member

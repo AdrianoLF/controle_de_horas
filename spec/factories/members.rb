@@ -10,6 +10,7 @@
 #  active      :boolean          default(TRUE)
 #  pix_key     :string
 #  disabled_at :datetime
+#  external_id :string
 #
 FactoryBot.define do
   factory :member do

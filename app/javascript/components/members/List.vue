@@ -62,6 +62,12 @@
         </div>
       </td>
       <td>
+        <span v-if="member.external_id" class="badge bg-light text-dark">
+          {{ member.external_id }}
+        </span>
+        <span v-else class="text-muted">-</span>
+      </td>
+      <td>
         <div
           v-if="member.teams && member.teams.length > 0"
           class="teams-container"
@@ -147,6 +153,17 @@
         </select>
       </div>
       <div class="col-md-6">
+        <label class="form-label">RA do aluno</label>
+        <input
+          type="text"
+          class="form-control"
+          v-model="filterExternalId"
+          @input="formatFilterExternalId"
+          placeholder="Digite o RA do aluno"
+        />
+        <small class="form-text text-muted"> Apenas números </small>
+      </div>
+      <div class="col-md-12">
         <label class="form-label">Times</label>
         <select class="form-select" v-model="selectedTeamIds" multiple size="5">
           <option
@@ -199,6 +216,7 @@ export default {
       isLoading: true,
       headers: [
         { label: "Nome", key: "name", sortable: true },
+        { label: "RA do aluno", key: "external_id", sortable: true },
         { label: "Times", key: "teams", sortable: false },
         { label: "Horas Totais", key: "total_hours", sortable: true },
         { label: "Ações", key: "actions", sortable: false },
@@ -216,6 +234,7 @@ export default {
       filterActive: true, // Padrão: apenas membros ativos
       selectedTeamIds: [], // Times selecionados para filtro
       availableTeams: [], // Lista de todos os times disponíveis
+      filterExternalId: "", // Filtro por ID externo (RA do aluno)
 
       // ===== RELATÓRIO DE HORAS =====
       showHoursReport: false,
@@ -227,11 +246,16 @@ export default {
       let count = 0;
       if (this.filterActive === false || this.filterActive === "") count++; // Só conta se não for o padrão (true)
       if (this.selectedTeamIds.length > 0) count++;
+      if (this.filterExternalId.trim() !== "") count++;
       return count;
     },
 
     hasAnyFilters() {
-      return this.filterActive !== true || this.selectedTeamIds.length > 0;
+      return (
+        this.filterActive !== true ||
+        this.selectedTeamIds.length > 0 ||
+        this.filterExternalId.trim() !== ""
+      );
     },
 
     // Texto descritivo dos filtros ativos
@@ -245,6 +269,10 @@ export default {
       // Filtro por times
       const teamsText = this.getTeamsText();
       if (teamsText) parts.push(teamsText);
+
+      // Filtro por ID externo (RA do aluno)
+      const externalIdText = this.getExternalIdText();
+      if (externalIdText) parts.push(externalIdText);
 
       return parts.join(" • ");
     },
@@ -275,6 +303,16 @@ export default {
         .filter(Boolean);
 
       return `Times: ${teamNames.join(", ")}`;
+    },
+
+    getExternalIdText() {
+      if (this.filterExternalId.trim() === "") return null;
+      return `RA do aluno: ${this.filterExternalId}`;
+    },
+
+    formatFilterExternalId(event) {
+      const value = event.target.value.replace(/\D/g, "");
+      this.filterExternalId = value;
     },
 
     // ===== MÉTODOS PRINCIPAIS =====
@@ -355,12 +393,17 @@ export default {
         filters.team_ids = this.selectedTeamIds;
       }
 
+      if (this.filterExternalId.trim() !== "") {
+        filters.external_id = this.filterExternalId.trim();
+      }
+
       this.$refs.baseList?.applyFilters(filters);
     },
 
     clearAllFilters() {
       this.filterActive = true;
       this.selectedTeamIds = [];
+      this.filterExternalId = "";
       this.$refs.baseList?.resetToInitialState();
     },
 

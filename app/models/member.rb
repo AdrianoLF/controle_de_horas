@@ -10,6 +10,7 @@
 #  active      :boolean          default(TRUE)
 #  pix_key     :string
 #  disabled_at :datetime
+#  external_id :string
 #
 class Member < ApplicationRecord
   has_many :memberships, dependent: :destroy
