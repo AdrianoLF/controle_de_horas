@@ -11,6 +11,7 @@ class EventsFinder
     scope = filter_by_member(scope)
     scope = filter_by_search(scope)
     scope = filter_by_occurred_range(scope)
+    scope = scope.distinct
     sort(scope)
   end
 
