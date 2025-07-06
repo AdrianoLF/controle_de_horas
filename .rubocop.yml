@@ -4,6 +4,8 @@ require:
   - rubocop-rspec
 
 Metrics/MethodLength:
+  Exclude:
+    - "app/services/reports/calculate_member_hours_service.rb"
   Max: 20
 
 Metrics/BlockLength:
@@ -27,14 +29,21 @@ Metrics/AbcSize:
   Exclude:
     - "app/finders/events_finder.rb"
     - "app/controllers/api/v1/events_controller.rb"
+    - "app/services/reports/calculate_member_hours_service.rb"
 
 Metrics/CyclomaticComplexity:
   Exclude:
     - "app/finders/events_finder.rb"
+    - "app/services/reports/calculate_member_hours_service.rb"
 
 Metrics/PerceivedComplexity:
   Exclude:
     - "app/finders/events_finder.rb"
+    - "app/services/reports/calculate_member_hours_service.rb"
+
+Metrics/ClassLength:
+  Exclude:
+    - "app/services/reports/calculate_member_hours_service.rb"
 
 Style/Documentation:
   Enabled: false

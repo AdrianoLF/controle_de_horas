@@ -1,12 +1,14 @@
 class Api::V1::SuperAdmin::ReportsController < Api::V1::SuperAdmin::BaseController
   def hours
-    scope = Reports::CalculateMembersHoursService.new(params).perform
-    @members_with_hours = paginate(scope:, params: permitted_params)
+    member = Member.find(params[:member_id])
+
+    @member_with_hours = Reports::CalculateMemberHoursService.new(member).perform
+    @member_events = member.events.order(occurred_at: :desc) if @member_with_hours
   end
 
   private
 
   def permitted_params
-    params.permit(:name, :page)
+    params.permit(:member_id)
   end
 end
