@@ -2,6 +2,7 @@ json.record do
   json.id @member_with_hours[:id]
   json.name @member_with_hours[:name]
   json.created_at @member_with_hours[:created_at]
+  json.disabled_at @member_with_hours[:disabled_at]
   json.total_seconds @member_with_hours[:total_seconds]
   json.event_count @member_with_hours[:event_count]
 

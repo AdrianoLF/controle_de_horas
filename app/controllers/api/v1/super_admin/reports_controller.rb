@@ -3,7 +3,7 @@ class Api::V1::SuperAdmin::ReportsController < Api::V1::SuperAdmin::BaseControll
     member = Member.find(params[:member_id])
 
     @member_with_hours = Reports::CalculateMemberHoursService.new(member).perform
-    @member_events = member.events.order(occurred_at: :desc) if @member_with_hours
+    @member_events = member.events.includes(:teams).order(occurred_at: :desc) if @member_with_hours
   end
 
   private

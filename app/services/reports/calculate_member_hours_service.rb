@@ -67,10 +67,11 @@ class Reports::CalculateMemberHoursService
       id: data.id,
       name: data.name,
       created_at: data.created_at,
+      disabled_at: @member.disabled_at,
       total_seconds: total_seconds,
       event_count: data.event_count,
       real: {
-        total_weeks: real_weeks,
+        total_weeks: real_weeks.round,
         average_hours_per_week: real_average,
         first_event_at: first_event_at,
         last_event_at: last_event_at
@@ -89,6 +90,7 @@ class Reports::CalculateMemberHoursService
       id: @member.id,
       name: @member.name,
       created_at: @member.created_at,
+      disabled_at: @member.disabled_at,
       total_seconds: 0,
       event_count: 0,
       real: {

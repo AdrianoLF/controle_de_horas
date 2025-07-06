@@ -29,6 +29,7 @@ RSpec.describe Reports::CalculateMemberHoursService, type: :service do
                                id: member.id,
                                name: member.name,
                                created_at: member.created_at,
+                               disabled_at: member.disabled_at,
                                total_seconds: 0,
                                event_count: 0,
                                real: {
@@ -42,6 +43,38 @@ RSpec.describe Reports::CalculateMemberHoursService, type: :service do
                                  average_hours_per_week: 0,
                                  first_event_at: nil,
                                  last_event_at: nil
+                               }
+                             })
+      end
+    end
+
+    context 'when member has 1 event only' do
+      let(:event_date) { Date.new(2025, 7, 6) }
+      let(:duration_seconds) { 900 } # 15 minutes
+
+      it 'returns correct metrics for single event' do
+        create_event(duration_seconds: duration_seconds, occurred_at: event_date)
+
+        result = service.perform
+
+        expect(result).to eq({
+                               id: member.id,
+                               name: member.name,
+                               created_at: member.created_at,
+                               disabled_at: member.disabled_at,
+                               total_seconds: duration_seconds,
+                               event_count: 1,
+                               real: {
+                                 total_weeks: 0,
+                                 average_hours_per_week: 0.0,
+                                 first_event_at: event_date,
+                                 last_event_at: event_date
+                               },
+                               ideal: {
+                                 total_weeks: 0,
+                                 average_hours_per_week: 0,
+                                 first_event_at: event_date,
+                                 last_event_at: event_date
                                }
                              })
       end
