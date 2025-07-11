@@ -60,10 +60,10 @@ POSTGRES_PASSWORD=my_password
 DEVISE_JWT_SECRET_KEY=seu_token_secreto_aqui
 ```
 
-### 3. Inicie a aplicação
+### 3. Setup da aplicação
 
 ```bash
-# Inicie os serviços do Docker (PostgreSQL e Redis)
+# Inicie os serviços do Docker (PostgreSQL)
 docker-compose up -d
 
 # Instale as dependências
@@ -73,13 +73,15 @@ npm install
 # Configure o banco de dados
 rails db:create
 rails db:migrate
+
+# Caso queira popular seu banco com seeds
 rails db:seed
 ```
 
 ### 4. Execute a aplicação
 
 ```bash
-# Em um terminal - backend Rails
+# Em um terminal, inicie o backend Rails
 rails server
 ```
 
@@ -101,75 +103,7 @@ O sistema vem configurado com usuários de demonstração:
 
 - **Email**: leader@acme.inc
 - **Senha**: Password1!
-- **Permissões**: Gestão de times e eventos
-
-## 🏢 Estrutura dos Dados
-
-O sistema inclui dados de exemplo com:
-
-- **5 Times**: Desenvolvimento, Design, Produto, QA e Infraestrutura
-- **14 Membros**: Distribuídos entre os times com diferentes papéis
-- **25+ Eventos**: Atividades realistas de desenvolvimento de software
-- **7 Eventos Cross-Team**: Colaborações entre múltiplos times
-
-### Tipos de Eventos Incluídos
-
-- 💻 **Desenvolvimento**: APIs, code reviews, refatorações, dashboards
-- 🎨 **Design**: Protótipos, pesquisa UX, design system, landing pages
-- 📊 **Produto**: Análise de métricas, planejamento, pesquisa de mercado
-- 🔍 **QA**: Testes de regressão, automação, validação de performance
-- 🔧 **Infraestrutura**: Deploys, monitoramento, otimização de banco
-- 🤝 **Colaboração**: Alinhamentos, planning sessions, all hands
-
-## 🔍 Regras de Validação
-
-O sistema implementa validações importantes para garantir a integridade dos dados:
-
-### Events (Eventos)
-
-- **Title**: Obrigatório
-- **Duration**: Apenas valores específicos permitidos: 15min, 30min, 1h, 2h, 3h, 4h
-- **Teams**: Deve ter pelo menos um time associado
-- **Members**: Membros devem pertencer aos times do evento
-- **Occurred At**: Data de ocorrência obrigatória
-
-### Teams (Times)
-
-- **Name**: Obrigatório, entre 3 e 100 caracteres
-- **Description**: Opcional
-
-### Members (Membros)
-
-- **Name**: Obrigatório
-- **PIX Key**: Único quando fornecido
-- **Active**: Padrão verdadeiro
-- **Email**: Usado como identificador único
-
-### Memberships (Associações)
-
-- **Role**: Enum (member, leader)
-- **Unique**: Um membro não pode ter múltiplas associações no mesmo time
-
-## 🔗 API Endpoints
-
-### Públicos
-
-- `POST /users/sign_in` - Login de usuário
-- `DELETE /users/sign_out` - Logout de usuário
-
-### Autenticados
-
-- `GET /api/v1/users/my_user` - Dados do usuário logado
-- `GET /api/v1/teams` - Lista de times
-- `GET /api/v1/members` - Lista de membros
-- `GET /api/v1/events` - Lista de eventos
-- `POST /api/v1/events` - Criar novo evento
-
-### Super Admin
-
-- `GET /api/v1/super_admin/reports/hours` - Relatórios de horas
-- `POST /api/v1/super_admin/teams` - Criar times
-- `POST /api/v1/super_admin/members` - Criar membros
+- **Permissões**: Gestão de eventos
 
 ## 📝 Comandos Úteis
 
@@ -183,15 +117,6 @@ rails db:reset
 # Console do Rails
 rails console
 ```
-
-## 📊 Estatísticas dos Dados de Exemplo
-
-- ⏰ **85+ horas** de eventos registrados
-- 👥 **5 líderes** de time
-- 👨‍💻 **9 membros** regulares
-- 🤝 **8 eventos** multi-team
-- 📅 **30 dias** de histórico de atividades
-- ✅ **100%** eventos com durações válidas (15min, 30min, 1h, 2h, 3h, 4h)
 
 ## 📄 Licença
 
