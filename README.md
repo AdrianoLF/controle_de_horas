@@ -2,6 +2,15 @@
 
 Sistema inteligente para controle e monitoramento de horas trabalhadas por diferentes times de desenvolvimento.
 
+## 🔗 Endpoint Público de Relatórios
+
+O sistema oferece um endpoint público para consulta de relatórios de horas **sem necessidade de autenticação**:
+
+- **Interface Web**: `GET /public/reports/{RA}` - Visualização completa do relatório
+- **API JSON**: `GET /api/v1/public_reports/hours?ra={RA}` - Dados em formato JSON
+
+Consulte relatórios usando apenas o RA (número de registro acadêmico) do membro
+
 ## 📖 Sobre o Projeto
 
 O **Controle de Horas** é uma aplicação web moderna desenvolvida para auxiliar empresas e organizações no gerenciamento eficiente do tempo de trabalho de suas equipes. O sistema permite:

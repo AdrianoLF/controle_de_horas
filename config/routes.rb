@@ -6,6 +6,7 @@ Rails.application.routes.draw do
              skip: [:registrations]
 
   root 'pages#home'
+  get 'public/reports/:ra', to: 'pages#public_report', as: 'public_report'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
       resources :users, only: [] do
@@ -20,6 +21,12 @@ Rails.application.routes.draw do
       resources :teams, only: %i[index show]
 
       resources :events, only: %i[index update create destroy show]
+
+      resources :public_reports, only: [] do
+        collection do
+          get :hours
+        end
+      end
 
       # SUPER ADMIN SECTION
       namespace :super_admin do
