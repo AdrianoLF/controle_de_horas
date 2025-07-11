@@ -25,6 +25,10 @@ Style/WordArray:
   Exclude:
     - "db/schema.rb"
 
+RSpec/ContextWording:
+  Exclude:
+    - "spec/controllers/api/v1/super_admin/users_controller_spec.rb"
+
 Metrics/AbcSize:
   Exclude:
     - "app/finders/events_finder.rb"

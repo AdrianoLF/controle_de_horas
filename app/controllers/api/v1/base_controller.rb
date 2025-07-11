@@ -1,7 +1,6 @@
 class Api::V1::BaseController < ApplicationController
   include PaginationHelper
 
-  skip_before_action :authenticate_user!
   before_action :authenticate_user
   before_action :check_suspended_user
 
@@ -22,6 +21,6 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def not_found
-    render json: { error: 'Registro não encontrado' }, status: :not_found
+    render json: { error: 'Usuário de autenticação não encontrado' }, status: :not_found
   end
 end

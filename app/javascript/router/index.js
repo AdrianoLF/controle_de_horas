@@ -5,12 +5,21 @@ import MembersList from "../components/members/List.vue";
 import TeamsList from "../components/teams/List.vue";
 import EventsList from "../components/events/List.vue";
 import UserProfile from "../components/users/Page.vue";
+import UsersList from "../components/users/List.vue";
 import store from "@/store";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/login", name: "Login", component: Login },
   { path: "/profile", name: "UserProfile", component: UserProfile },
+
+  // USUÁRIOS
+  {
+    path: "/users",
+    name: "UsersList",
+    component: UsersList,
+    meta: { requiresSuperAdmin: true },
+  },
 
   // MEMBROS
   {

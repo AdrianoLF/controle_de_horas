@@ -156,7 +156,7 @@ export default {
     },
     fetchFunction: {
       type: Function,
-      required: true,
+      required: false,
     },
     items: {
       type: Array,

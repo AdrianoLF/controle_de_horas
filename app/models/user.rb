@@ -20,5 +20,18 @@ class User < ApplicationRecord
          :jwt_authenticatable,
          jwt_revocation_strategy: JwtDenylist
 
-  validates :email, presence: true, uniqueness: true
+  validates :name, presence: true
+  validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :password, presence: true, on: :create
+  validates :password, confirmation: true, if: :password_present?
+
+  private
+
+  def password_required?
+    !persisted? || !password.nil?
+  end
+
+  def password_present?
+    password.present?
+  end
 end

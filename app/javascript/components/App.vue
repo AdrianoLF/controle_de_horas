@@ -53,6 +53,11 @@
               </router-link>
             </li>
             <li class="nav-item" v-if="isSuperAdmin">
+              <router-link to="/users" class="nav-link" active-class="active"
+                >Usuários</router-link
+              >
+            </li>
+            <li class="nav-item" v-if="isSuperAdmin">
               <router-link to="/members" class="nav-link" active-class="active"
                 >Membros</router-link
               >
