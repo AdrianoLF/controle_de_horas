@@ -76,13 +76,13 @@
                 }}</span>
               </div>
               <div class="col-12 mb-3">
-                <strong>Primeiro Evento:</strong>
+                <strong>Primeiro Atividade:</strong>
                 <span class="text-muted">{{
                   formatDateTime(memberReport.real.first_event_at)
                 }}</span>
               </div>
               <div class="col-12 mb-3">
-                <strong>Último Evento:</strong>
+                <strong>Última Atividade:</strong>
                 <span class="text-muted">{{
                   formatDateTime(memberReport.real.last_event_at)
                 }}</span>
@@ -297,11 +297,15 @@ export default {
     formatDateTime(dateString) {
       if (!dateString) return "—";
 
-      return new Date(dateString).toLocaleDateString("pt-BR", {
+      const formattedDate = new Date(dateString).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       });
+      const weekday = new Date(dateString).toLocaleDateString("pt-BR", {
+        weekday: "long",
+      });
+      return `${formattedDate} (${weekday})`;
     },
   },
 };
